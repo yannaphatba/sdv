@@ -1,0 +1,58 @@
+version: '3'
+services:
+    # 1. ส่วนของ PHP (App ของเรา)
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: vehicle-system-app
+        container_name: vehicle-app
+        restart: unless-stopped
+        working_dir: /var/www
+        environment:
+            - PHP_MEMORY_LIMIT=2048M
+            - PHP_MAX_EXECUTION_TIME=300
+        volumes:
+            - ./:/var/www
+        networks:
+            - laravel
+
+    # 2. ส่วนของ Web Server (Nginx)
+    webserver:
+        image: nginx:alpine
+        container_name: vehicle-webserver
+        restart: unless-stopped
+        ports:
+            - "8000:80"
+        volumes:
+            - ./:/var/www
+            - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+        networks:
+            - laravel
+
+    # 3. ส่วนของ ฐานข้อมูล (MySQL)
+    db:
+        image: mysql:8.0
+        container_name: vehicle-db
+        restart: unless-stopped
+        ports:
+            - "33061:3306"
+        environment:
+            MYSQL_DATABASE: ${DB_DATABASE}
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+            MYSQL_PASSWORD: ${DB_PASSWORD}
+            MYSQL_USER: ${DB_USERNAME}
+            SERVICE_TAGS: dev
+            SERVICE_NAME: mysql
+        volumes:
+            - dbdata:/var/lib/mysql
+        networks:
+            - laravel
+
+networks:
+    laravel:
+        driver: bridge
+
+volumes:
+    dbdata:
+        driver: local
