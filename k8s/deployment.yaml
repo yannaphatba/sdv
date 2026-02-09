@@ -15,7 +15,7 @@ spec:
       containers:
       # 1. Image งานของริว (Nginx + PHP-FPM + Code)
       - name: svd-app
-        image: yannaphatba/svd-app:v1
+        image: riewyannaphat/svd-app:v1
         ports:
         - containerPort: 9000
 
