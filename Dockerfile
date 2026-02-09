@@ -16,6 +16,10 @@ RUN mkdir -p /var/www/html/sdv
 WORKDIR /var/www/html/sdv
 COPY . .
 
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN composer install --no-dev --optimize-autoloader
+
+
 # Ensure permissions
 RUN chown -R www-data:www-data /var/www/html
 
