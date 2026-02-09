@@ -101,7 +101,7 @@
         top: 0; left: 0; width: 100vw; height: 100vh;
         z-index: -1;
         
-        background-image: url("{{ asset('images/login.jpg') }}");
+        background-image: url("/sdv/images/login.jpg");
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
