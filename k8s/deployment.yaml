@@ -86,14 +86,16 @@ spec:
             memory: "512Mi"
         ports: [{ containerPort: 80 }]
         env:
+        - name: DB_CONNECTION  # เพิ่มบรรทัดนี้เพื่อบอกแอปว่าใช้ MySQL
+          value: "mysql"
         - name: DB_HOST
           value: "mysql-service"
-        - name: DB_DATABASE    # แก้จาก DB_NAME เป็น DB_DATABASE
+        - name: DB_DATABASE
           value: "mydb"
-        - name: DB_PASSWORD
-          value: "mydbpassword"
-        - name: DB_USERNAME    # ถ้าให้ดีควรเพิ่มบรรทัดนี้ด้วยเพื่อน
+        - name: DB_USERNAME
           value: "root"
+        - name: DB_PASSWORD
+          value: "mydbpassword"  # ต้องตรงกับ MYSQL_ROOT_PASSWORD ข้างบนเพื่อน
 ---
 # 6. Ingress (Web Access)
 apiVersion: networking.k8s.io/v1
