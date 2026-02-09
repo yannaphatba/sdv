@@ -11,35 +11,34 @@ use App\Http\Controllers\AdvisorController;
 use App\Http\Controllers\FacultyController;
 use App\Http\Controllers\MajorController;
 
-// 1. Redirect หน้าแรก ให้วิ่งไปที่ /svd/login อัตโนมัติ
+// 1. Redirect หน้าแรก
 Route::get('/', function () {
-    return redirect('/login');
+    return redirect('/sdv/login');
 });
 
-// ✅ 2. สร้างกลุ่มใหญ่ ครอบทั้งหมดด้วย prefix 'sdv'
-Route::group([], function () {
+// ✅ 2. กลุ่มใหญ่ prefix 'sdv'
+Route::prefix('sdv')->group(function () {
 
-    // --- Guest Routes (ใครก็เข้าได้ เช่น หน้า Login) ---
+    // --- Guest Routes ---
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.post');
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 
-    // SSO Mockup
     Route::get('/saml2/{idp}/login', function ($idp) {
         return "<h1>ระบบ SSO มหาวิทยาลัย</h1><p>จำลองการเชื่อมต่อ...</p>";
     })->name('saml2_login');
 
-    // --- Logged-in Routes (กลุ่มที่ต้อง Login ก่อนเท่านั้นถึงจะเห็น) ---
+    // --- Logged-in Routes (ต้อง Login ก่อน) ---
     Route::middleware(['auth'])->group(function () {
 
-        // ⭐ [ย้ายมาไว้ตรงนี้] บังคับให้ รปภ. หรือ แอดมินต้อง Login ก่อนถึงจะสแกนดูข้อมูลได้
+        // ⭐ [บรรทัดที่ริวทัก - ดึงกลับมาแล้ว]
         Route::get('/security/check-sticker/{number}', [AdminController::class, 'checkSticker'])->name('security.check.sticker');
 
-        // Logout
+        // [บรรทัด Logout - ดึงกลับมาแล้ว]
         Route::match(['get', 'post'], '/logout', [AuthController::class, 'logout'])->name('logout');
 
-        // Student Group (เหมือนเดิมทุกประการ)
+        // Student Group (ครบถ้วน)
         Route::prefix('student')->name('student.')->group(function () {
             Route::get('/view', [StudentController::class, 'view'])->name('view');
             Route::put('/update/{id}', [StudentController::class, 'update'])->name('update');
@@ -52,7 +51,7 @@ Route::group([], function () {
             Route::post('/major/store', [StudentController::class, 'storeMajor'])->name('major.store');
         });
 
-        // Admin Group (เหมือนเดิมทุกประการ)
+        // Admin Group (ครบถ้วน)
         Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
             Route::get('/create', [AdminController::class, 'create'])->name('create');
@@ -78,7 +77,7 @@ Route::group([], function () {
             });
         });
 
-        // Security Group (เหมือนเดิมทุกประการ)
+        // Security Group (ครบถ้วน)
         Route::prefix('security')->name('security.')->group(function () {
             Route::get('/dashboard', [SecurityController::class, 'dashboard'])->name('dashboard');
             Route::get('/students', [SecurityController::class, 'students'])->name('students');
