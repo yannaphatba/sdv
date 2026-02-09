@@ -1,0 +1,57 @@
+name: Deploy to RMUTI Cluster
+on:
+  workflow_dispatch:
+  #push:
+  #  branches: [ main ]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set Image Name to Lowercase
+        run: |
+          IMAGE_PATH="ghcr.io/${{ github.repository }}"
+          echo "IMAGE_NAME=$(echo $IMAGE_PATH | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ env.IMAGE_NAME }}:latest
+
+      - name: Set Kubernetes Context
+        uses: azure/k8s-set-context@v3
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
+      - name: Deploy to K8s
+        run: |
+          # Replace placeholder with the actual built image
+          sed -i "s|ghcr.io/placeholder:latest|${{ env.IMAGE_NAME }}:latest|g" k8s/deployment.yaml
+
+          # Use --server to force the correct API address if kubeconfig is stubborn
+          kubectl apply -f k8s/deployment.yaml \
+            --namespace=sdv \
+            --insecure-skip-tls-verify=true \
+            --validate=false
+
+          # This forces the pods to restart even if the tag name is the same
+          kubectl rollout restart deployment/php-app \
+            --namespace=sdv \
+            --insecure-skip-tls-verify=true

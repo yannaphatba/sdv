@@ -1,31 +1,115 @@
+# 1. Database Storage (Persistent Volume Claim)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+  namespace: sdv
+spec:
+  accessModes: [ReadWriteOnce]
+  resources: { requests: { storage: 2Gi } }
+---
+# 2. MySQL Service (Internal)
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+  namespace: sdv
+spec:
+  ports: [{ port: 3306 }]
+  selector: { app: mysql }
+---
+# 3. MySQL Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: svd-app-deployment
+  name: mysql
+  namespace: sdv
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: svd
+  selector: { matchLabels: { app: mysql } }
   template:
-    metadata:
-      labels:
-        app: svd
+    metadata: { labels: { app: mysql } }
     spec:
       containers:
-      # 1. Image งานของริว (Nginx + PHP-FPM + Code)
-      - name: svd-app
-        image: riewyannaphat/svd-app:v1
-        ports:
-        - containerPort: 9000
-
-      # 2. Image Database (MySQL สำเร็จรูปตามสั่งอาจารย์)
-      - name: svd-db
+      - name: mysql
         image: mysql:8.0
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
         env:
         - name: MYSQL_ROOT_PASSWORD
-          value: "Asdf1234"
+          value: "mydbpassword"
         - name: MYSQL_DATABASE
-          value: "vehicle_system"
-        ports:
-        - containerPort: 3306
+          value: "mydb"
+        ports: [{ containerPort: 3306 }]
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: data
+        persistentVolumeClaim: { claimName: mysql-pvc }
+---
+# 4. PHP-Nginx Application Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: php-service
+  namespace: sdv
+spec:
+  ports: [{ port: 80 }]
+  selector: { app: php }
+---
+# 5. PHP-Nginx Application Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: php-app
+  namespace: sdv
+spec:
+  selector: { matchLabels: { app: php } }
+  template:
+    metadata: { labels: { app: php } }
+    spec:
+      containers:
+      - name: php-nginx
+        image: ghcr.io/placeholder:latest
+        imagePullPolicy: Always
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+        ports: [{ containerPort: 80 }]
+        env:
+        - name: DB_HOST
+          value: "mysql-service"
+        - name: DB_NAME
+          value: "mydb"
+        - name: DB_PASSWORD
+          value: "mydbpassword"
+---
+# 6. Ingress (Web Access)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: php-ingress
+  namespace: sdv
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: project.cpe.rmuti.ac.th
+    http:
+      paths:
+      - path: /sdv
+        pathType: Prefix
+        backend:
+          service:
+            name: php-service
+            port: { number: 80 }
