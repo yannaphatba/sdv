@@ -62,7 +62,9 @@ jobs:
             --insecure-skip-tls-verify=true
 
           # แก้ไข Step 5 ล่างสุด
+      # Step 5: แก้ไขให้ชี้ไปที่ artisan หน้าแรกสุด
       - name: Clear Laravel Cache
         run: |
-          kubectl exec deployment/php-app -n sdv -- php /var/www/html/sdv/artisan route:clear
-          kubectl exec deployment/php-app -n sdv -- php /var/www/html/sdv/artisan config:clear
+          kubectl exec deployment/php-app -n sdv -- php /var/www/html/artisan route:clear
+          kubectl exec deployment/php-app -n sdv -- php /var/www/html/artisan config:clear
+          kubectl exec deployment/php-app -n sdv -- php /var/www/html/artisan view:clear
