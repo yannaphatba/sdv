@@ -30,15 +30,16 @@ spec:
     metadata: { labels: { app: mysql } }
     spec:
       containers:
-      - name: mysql
-        image: mysql:8.0
+      - name: php-nginx
+        image: ghcr.io/yannaphatba/sdv:placeholder
+        imagePullPolicy: Always
         resources:
-          requests:
+          requests: 
             cpu: "250m"
-            memory: "256Mi"
-          limits:
+            memory: "512Mi"  
+          limits: 
             cpu: "500m"
-            memory: "512Mi"
+            memory: "1Gi"   
         env:
         - name: MYSQL_ROOT_PASSWORD
           value: "mydbpassword"
