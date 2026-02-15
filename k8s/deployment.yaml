@@ -78,7 +78,7 @@ spec:
       containers:
       - name: php-nginx
         # ใส่ placeholder ไว้ให้ตรงกับที่ในไฟล์ .github/workflows/deploy.yml จะมา sed เปลี่ยนนะครับ
-        image: ghcr.io/yannaphatba/sdv:placeholder 
+        image: ghcr.io/yannaphatba/sdv:placeholder
         imagePullPolicy: Always
         resources:
           requests: { cpu: "250m", memory: "256Mi" }
