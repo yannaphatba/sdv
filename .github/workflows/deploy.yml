@@ -61,8 +61,9 @@ jobs:
             --insecure-skip-tls-verify=true
 
       # Step 5: ตัดคำว่า /sdv/ ออก เพราะไฟล์ artisan อยู่ที่หน้าแรกสุดแล้วครับ
+      # Step 5: แก้พิกัดให้หุ่นยนต์เดินเข้าโฟลเดอร์ src ไปหาไฟล์ artisan ครับ
       - name: Clear Laravel Cache
         run: |
-          kubectl exec deployment/php-app -n sdv -- php /var/www/html/artisan route:clear
-          kubectl exec deployment/php-app -n sdv -- php /var/www/html/artisan config:clear
-          kubectl exec deployment/php-app -n sdv -- php /var/www/html/artisan view:clear
+          kubectl exec deployment/php-app -n sdv --insecure-skip-tls-verify=true -- php /var/www/html/src/artisan route:clear
+          kubectl exec deployment/php-app -n sdv --insecure-skip-tls-verify=true -- php /var/www/html/src/artisan config:clear
+          kubectl exec deployment/php-app -n sdv --insecure-skip-tls-verify=true -- php /var/www/html/src/artisan view:clear
