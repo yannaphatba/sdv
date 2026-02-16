@@ -75,6 +75,8 @@ spec:
           limits: { cpu: "500m", memory: "1Gi" }
         ports: [{ containerPort: 80 }]
         env:
+        - name: APP_KEY
+          value: "base64:u38JIDuY8p7O6I5O+6N4XhV7f5O7rG7i9R7T4u5I6O0="
         - name: DB_CONNECTION
           value: "mysql"
         - name: DB_HOST
