@@ -37,6 +37,13 @@ spec:
           value: "mydbpassword"
         - name: MYSQL_DATABASE
           value: "mydb"
+        - name: MYSQL_USER
+          value: "myuser"
+        - name: MYSQL_PASSWORD
+          value: "mypassword"
+        # เพิ่มบรรทัดนี้กันเหนียวไว้ด้วยครับเพื่อให้ User ทุกตัวต่อเข้าได้ชัวร์
+        - name: MYSQL_ROOT_HOST
+          value: "%"
         ports: [{ containerPort: 3306 }]
         volumeMounts:
         - name: data
