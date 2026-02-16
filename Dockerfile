@@ -8,7 +8,7 @@ WORKDIR /var/www/html
 COPY src/ .
 
 # 2. ก๊อปปี้คอนฟิก Nginx จากพิกัดจริง
-COPY docker/nginx/default.conf /etc/nginx/http.d/default.conf
+COPY nginx/default.conf /etc/nginx/http.d/default.conf
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
