@@ -32,6 +32,13 @@ spec:
       containers:
       - name: mysql
         image: mysql:8.0
+        resources:
+          requests:
+            cpu: "100m"      # ขอใช้ CPU นิดเดียว
+            memory: "256Mi"  # ขอใช้ RAM ขั้นต่ำ
+          limits:
+            cpu: "200m"      # จำกัดไม่ให้ใช้เกินนี้
+            memory: "512Mi"
         env:
         - name: MYSQL_ROOT_PASSWORD
           value: "mydbpassword"
@@ -49,7 +56,7 @@ spec:
           mountPath: /var/lib/mysql
       volumes:
       - name: data
-        persistentVolumeClaim: { claimName: mysql-pvc }
+        emptyDir: {}
 ---
 # 4. PHP-Nginx Service
 apiVersion: v1
@@ -75,7 +82,7 @@ spec:
       containers:
       - name: php-nginx
         # แก้กลับเป็น placeholder เพื่อให้ GitHub Actions ทำงานได้ครับ
-        image: ghcr.io/yannaphatba/sdv:placeholder 
+        image: ghcr.io/yannaphatba/sdv:v64
         imagePullPolicy: Always
         resources:
           requests: { cpu: "250m", memory: "512Mi" }
@@ -103,7 +110,6 @@ metadata:
   namespace: sdv
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: web
-    traefik.ingress.kubernetes.io/router.middlewares: sdv-stripprefix@kubernetescrd
 spec:
   ingressClassName: traefik
   rules:
