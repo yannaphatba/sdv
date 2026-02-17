@@ -82,7 +82,7 @@ spec:
       containers:
       - name: php-nginx
         # แก้กลับเป็น placeholder เพื่อให้ GitHub Actions ทำงานได้ครับ
-        image: ghcr.io/yannaphatba/sdv:v64
+        image: ghcr.io/yannaphatba/sdv:placeholder
         imagePullPolicy: Always
         resources:
           requests: { cpu: "250m", memory: "512Mi" }
