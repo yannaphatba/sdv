@@ -110,7 +110,6 @@ metadata:
   namespace: sdv
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: web
-    traefik.ingress.kubernetes.io/rewrite-target: /
 spec:
   ingressClassName: traefik
   rules:
@@ -122,4 +121,5 @@ spec:
         backend:
           service:
             name: php-service
-            port: { number: 80 }
+            port:
+              number: 80

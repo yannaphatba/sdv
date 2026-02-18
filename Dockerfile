@@ -1,36 +1,27 @@
-FROM php:8.3-fpm-alpine
+FROM php:8.2-fpm-alpine
 
-# ติดตั้ง Library พื้นฐาน
-RUN apk add --no-cache libpng-dev libjpeg-turbo-dev freetype-dev libzip-dev zip unzip nginx
-RUN docker-php-ext-install pdo pdo_mysql gd zip bcmath
+# Install extensions
+RUN docker-php-ext-install pdo pdo_mysql
 
-# 1. ตั้งหลักที่โฟลเดอร์ src
-WORKDIR /var/www/html/src
+# Install nginx
+RUN apk add --no-cache nginx
 
-# 2. ก๊อปปี้ไฟล์จาก src ในเครื่องริว มาลงที่ /var/www/html/src ใน Docker
-# (เพื่อให้ .env และ artisan อยู่ถูกที่)
-COPY src/ .
-
-# 3. จัดการเรื่อง .env (ถ้าไม่มีบน GitHub ให้ก๊อปจาก example)
-RUN if [ ! -f .env ]; then cp .env.example .env; fi
-
-# 4. ก๊อปปี้ Config Nginx (ไฟล์นี้อยู่นอก src)
+# Copy nginx config
 COPY nginx/default.conf /etc/nginx/http.d/default.conf
 
-# 5. ติดตั้ง Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
+# Create sdv folder inside container
+RUN mkdir -p /var/www/html/sdv
 
-# 6. สร้าง "บ้านเปล่า" สำหรับเก็บรูป และตั้งสิทธิ์ให้ Laravel เขียนไฟล์ได้
-RUN mkdir -p storage/app/public/Profiles storage/app/public/Vehicles \
-    storage/framework/sessions storage/framework/views storage/framework/cache bootstrap/cache && \
-    chown -R www-data:www-data /var/www/html/src/storage /var/www/html/src/bootstrap/cache && \
-    chmod -R 775 /var/www/html/src/storage /var/www/html/src/bootstrap/cache
+# Set working directory
+WORKDIR /var/www/html/sdv
 
-# 7. เชื่อมโยงโฟลเดอร์เก็บรูป
-RUN php artisan storage:link
+# Copy project files
+COPY . .
 
-# 8. Start Script
+# Permissions
+RUN chown -R www-data:www-data /var/www/html
+
+# Start script
 RUN echo "#!/bin/sh" > /start.sh && \
     echo "php-fpm -D" >> /start.sh && \
     echo "nginx -g 'daemon off;'" >> /start.sh && \
