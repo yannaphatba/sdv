@@ -55,7 +55,7 @@ class AuthController extends Controller
             Log::error("Email sending failed: " . $e->getMessage());
         }
 
-        return redirect('/svd/login')->with('success', 'สมัครสมาชิกสำเร็จ! ตรวจสอบกล่องจดหมายของคุณด้วยครับ');
+        return redirect('/sdv/login')->with('success', 'สมัครสมาชิกสำเร็จ! ตรวจสอบกล่องจดหมายของคุณด้วยครับ');
     }
 
     /**
@@ -73,16 +73,16 @@ class AuthController extends Controller
             $user = Auth::user();
 
             if ($user->role === 'admin') {
-                return redirect()->intended('/svd/admin/dashboard');
+                return redirect()->intended('/sdv/admin/dashboard');
             } 
             elseif ($user->role === 'security') {
-                return redirect()->intended('/svd/security/dashboard');
+                return redirect()->intended('/sdv/security/dashboard');
             }
             elseif ($user->role === 'student') {
-                return redirect()->intended('/svd/student/view');
+                return redirect()->intended('/sdv/student/view');
             }
 
-            return redirect('/svd/login');
+            return redirect('/sdv/login');
         }
 
         return back()->with('error', 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง')->withInput();

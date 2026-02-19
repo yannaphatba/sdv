@@ -322,7 +322,7 @@ class AdminController extends Controller
 
         $stickers = [];
         for ($i = $start; $i <= $end; $i++) {
-            $scanUrl = url("/svd/security/check-sticker/" . $i);
+            $scanUrl = url("/sdv/security/check-sticker/" . $i);
 
             // ✅ เจน QR Code เป็น Base64 โดยตรงในเครื่อง (เร็วขึ้น 100 เท่า)
             $qrCodeData = base64_encode(QrCode::format('svg')->size(150)->margin(1)->generate($scanUrl));

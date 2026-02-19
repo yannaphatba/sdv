@@ -91,6 +91,10 @@ spec:
         env:
         - name: APP_KEY
           value: "base64:u38JIDuY8p7O6I5O+6N4XhV7f5O7rG7i9R7T4u5I6O0="
+        - name: APP_URL
+          value: "https://project.cpe.rmuti.ac.th/sdv"
+        - name: ASSET_URL
+          value: "https://project.cpe.rmuti.ac.th/sdv"
         - name: DB_CONNECTION
           value: "mysql"
         - name: DB_HOST
@@ -101,6 +105,10 @@ spec:
           value: "myuser"
         - name: DB_PASSWORD
           value: "mypassword"
+        - name: SESSION_DRIVER
+          value: "file"
+        - name: CACHE_STORE
+          value: "file"
 ---
 # 6. Ingress (strip /sdv prefix at Ingress level)
 apiVersion: networking.k8s.io/v1
