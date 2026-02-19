@@ -67,6 +67,7 @@
                     <select name="type" class="form-select bg-light border-0">
                         <option value="">-- ประเภทการค้นหา --</option>
                         <option value="sticker" {{ request('type')=='sticker'?'selected':'' }}>เลขสติ๊กเกอร์</option>
+                        <option value="qrcode" {{ request('type')=='qrcode'?'selected':'' }}>QR Code</option>
                         <option value="license" {{ request('type')=='license'?'selected':'' }}>ทะเบียนรถ</option>
                         <option value="name" {{ request('type')=='name'?'selected':'' }}>ชื่อ - นามสกุล</option>
                         <option value="student_id" {{ request('type')=='student_id'?'selected':'' }}>รหัสนักศึกษา</option>
@@ -77,6 +78,13 @@
                     <div class="input-group">
                         <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
                         <input type="text" name="search" class="form-control border-start-0 ps-0" placeholder="พิมพ์คำค้นหา..." value="{{ request('search') }}">
+                    </div>
+                    <div id="qr-scan-wrap" class="mt-2 d-none">
+                        <button type="button" id="qr-scan-btn" class="btn btn-outline-primary btn-sm">สแกน QR ด้วยกล้อง</button>
+                        <div class="mt-2">
+                            <video id="qr-preview" class="w-100 rounded border d-none" autoplay muted playsinline></video>
+                        </div>
+                        <small id="qr-scan-hint" class="text-muted d-block mt-1"></small>
                     </div>
                 </div>
                 <div class="col-12 col-md-3 d-flex gap-2">
@@ -190,4 +198,94 @@
             </div>
 
         </div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const typeSelect = document.querySelector('select[name="type"]');
+    const searchInput = document.querySelector('input[name="search"]');
+    const qrWrap = document.getElementById('qr-scan-wrap');
+    const qrBtn = document.getElementById('qr-scan-btn');
+    const qrVideo = document.getElementById('qr-preview');
+    const qrHint = document.getElementById('qr-scan-hint');
+
+    let stream = null;
+    let scanning = false;
+    let detector = null;
+
+    const stopScan = () => {
+        if (stream) {
+            stream.getTracks().forEach((track) => track.stop());
+            stream = null;
+        }
+        if (qrVideo) {
+            qrVideo.classList.add('d-none');
+            qrVideo.srcObject = null;
+        }
+        scanning = false;
+    };
+
+    const updateUI = () => {
+        const isQr = typeSelect && typeSelect.value === 'qrcode';
+        if (qrWrap) {
+            qrWrap.classList.toggle('d-none', !isQr);
+        }
+        if (searchInput) {
+            searchInput.placeholder = isQr ? 'สแกนหรือพิมพ์รหัส QR...' : 'พิมพ์คำค้นหา...';
+        }
+        if (!isQr) {
+            stopScan();
+        }
+    };
+
+    const scanLoop = async () => {
+        if (!scanning || !detector || !qrVideo) return;
+        try {
+            const results = await detector.detect(qrVideo);
+            if (results.length > 0) {
+                const value = results[0].rawValue || results[0].value;
+                if (value && searchInput) {
+                    searchInput.value = value;
+                    const form = searchInput.closest('form');
+                    stopScan();
+                    if (form) form.submit();
+                    return;
+                }
+            }
+        } catch (err) {
+            // Ignore detection errors and keep scanning.
+        }
+        requestAnimationFrame(scanLoop);
+    };
+
+    const startScan = async () => {
+        if (!('BarcodeDetector' in window)) {
+            if (qrHint) qrHint.textContent = 'อุปกรณ์นี้ไม่รองรับการสแกน QR ในเบราว์เซอร์';
+            return;
+        }
+        if (scanning) return;
+        try {
+            detector = detector || new BarcodeDetector({ formats: ['qr_code'] });
+            stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'environment' }
+            });
+            if (qrVideo) {
+                qrVideo.srcObject = stream;
+                qrVideo.classList.remove('d-none');
+            }
+            scanning = true;
+            if (qrHint) qrHint.textContent = 'กำลังสแกน...';
+            scanLoop();
+        } catch (err) {
+            if (qrHint) qrHint.textContent = 'ไม่สามารถเปิดกล้องได้';
+        }
+    };
+
+    if (qrBtn) {
+        qrBtn.addEventListener('click', startScan);
+    }
+    if (typeSelect) {
+        typeSelect.addEventListener('change', updateUI);
+    }
+    updateUI();
+});
+</script>
 @endsection

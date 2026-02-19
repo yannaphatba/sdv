@@ -34,7 +34,14 @@ class AdminController extends Controller
             $search = trim($request->search);
 
             if ($request->type === 'qrcode') {
-                $q->where('qr_code_value', $search);
+                $value = $search;
+                if (preg_match('/check-sticker\/(\d+)/', $search, $matches)) {
+                    $value = $matches[1];
+                }
+                if (ctype_digit($value) && strlen($value) < 4) {
+                    $value = str_pad($value, 4, '0', STR_PAD_LEFT);
+                }
+                $q->where('sticker_number', $value);
             } elseif ($request->type === 'sticker') {
                 $q->where('sticker_number', $search);
             } elseif ($request->type === 'license') {

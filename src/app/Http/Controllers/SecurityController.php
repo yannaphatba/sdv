@@ -24,10 +24,17 @@ class SecurityController extends Controller
             switch ($request->type) {
                 case 'qrcode':
                 case 'sticker':
+                    $value = $search;
+                    if (preg_match('/check-sticker\/(\d+)/', $search, $matches)) {
+                        $value = $matches[1];
+                    }
+                    if (ctype_digit($value) && strlen($value) < 4) {
+                        $value = str_pad($value, 4, '0', STR_PAD_LEFT);
+                    }
                     //  ค้นหาจากตาราง Student โดยตรง
-                    $q->where(function ($query) use ($search) {
-                        $query->where('sticker_number', $search)
-                              ->orWhere('qr_code_value', $search);
+                    $q->where(function ($query) use ($value) {
+                        $query->where('sticker_number', $value)
+                              ->orWhere('qr_code_value', $value);
                     });
                     break;
 
