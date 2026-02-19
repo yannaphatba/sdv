@@ -117,7 +117,7 @@ spec:
   - host: project.cpe.rmuti.ac.th
     http:
       paths:
-      - path: /sdv
+      - path: /sdv/
         pathType: Prefix
         backend:
           service:
