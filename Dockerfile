@@ -2,7 +2,10 @@ FROM php:8.3-fpm-alpine
 
 RUN docker-php-ext-install pdo pdo_mysql
 
-RUN apk add --no-cache nginx composer
+RUN apk add --no-cache nginx curl
+
+# Install Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 COPY nginx/default.conf /etc/nginx/http.d/default.conf
 
