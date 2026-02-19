@@ -82,6 +82,7 @@
                     <div id="qr-scan-wrap" class="mt-2 d-none">
                         <button type="button" id="qr-scan-btn" class="btn btn-outline-primary btn-sm">สแกน QR ด้วยกล้อง</button>
                         <div class="mt-2">
+                            <div id="qr-reader" class="w-100 rounded border d-none" style="min-height: 240px;"></div>
                             <video id="qr-preview" class="w-100 rounded border d-none" autoplay muted playsinline></video>
                         </div>
                         <small id="qr-scan-hint" class="text-muted d-block mt-1"></small>
@@ -198,6 +199,7 @@
             </div>
 
         </div>
+<script src="https://unpkg.com/html5-qrcode@2.3.10/html5-qrcode.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const typeSelect = document.querySelector('select[name="type"]');
@@ -205,11 +207,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const qrWrap = document.getElementById('qr-scan-wrap');
     const qrBtn = document.getElementById('qr-scan-btn');
     const qrVideo = document.getElementById('qr-preview');
+    const qrReader = document.getElementById('qr-reader');
     const qrHint = document.getElementById('qr-scan-hint');
 
     let stream = null;
     let scanning = false;
     let detector = null;
+    let html5Qr = null;
 
     const stopScan = () => {
         if (stream) {
@@ -219,6 +223,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (qrVideo) {
             qrVideo.classList.add('d-none');
             qrVideo.srcObject = null;
+        }
+        if (html5Qr) {
+            html5Qr.stop().catch(() => {}).then(() => html5Qr.clear().catch(() => {}));
+        }
+        if (qrReader) {
+            qrReader.classList.add('d-none');
         }
         scanning = false;
     };
@@ -258,7 +268,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const startScan = async () => {
         if (!('BarcodeDetector' in window)) {
-            if (qrHint) qrHint.textContent = 'อุปกรณ์นี้ไม่รองรับการสแกน QR ในเบราว์เซอร์';
+            if (!window.Html5Qrcode) {
+                if (qrHint) qrHint.textContent = 'อุปกรณ์นี้ไม่รองรับการสแกน QR ในเบราว์เซอร์';
+                return;
+            }
+            if (!html5Qr) {
+                html5Qr = new Html5Qrcode('qr-reader');
+            }
+            if (qrReader) {
+                qrReader.classList.remove('d-none');
+            }
+            if (qrVideo) {
+                qrVideo.classList.add('d-none');
+            }
+            if (qrHint) qrHint.textContent = 'กำลังสแกน...';
+            html5Qr.start(
+                { facingMode: 'environment' },
+                { fps: 10, qrbox: 250 },
+                (decodedText) => {
+                    if (searchInput) {
+                        searchInput.value = decodedText;
+                        const form = searchInput.closest('form');
+                        stopScan();
+                        if (form) form.submit();
+                    }
+                },
+                () => {}
+            ).catch(() => {
+                if (qrHint) qrHint.textContent = 'ไม่สามารถเปิดกล้องได้';
+            });
             return;
         }
         if (scanning) return;
