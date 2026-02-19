@@ -110,7 +110,8 @@
                             {{-- 1. ส่วนคณะ --}}
                             <div class="col-12 col-md-4">
                                 <label class="form-label text-muted small">คณะ</label>
-                                <select name="faculty_id" class="form-select lockable bg-light js-searchable" data-placeholder="-- เลือกคณะ --" disabled>
+                                <input type="text" class="form-control form-control-sm mb-1 lockable" name="faculty_search" placeholder="พิมพ์ค้นหาคณะ" disabled>
+                                <select name="faculty_id" class="form-select lockable bg-light" size="5" disabled>
                                     <option value="">-- เลือกคณะ --</option>
                                     @foreach($faculties as $f)
                                     <option value="{{ $f->id }}" {{ $student->faculty_id == $f->id ? 'selected' : '' }}>{{ $f->name }}</option>
@@ -125,7 +126,8 @@
                             {{-- 2. ส่วนสาขา --}}
                             <div class="col-12 col-md-4">
                                 <label class="form-label text-muted small">สาขา</label>
-                                <select name="major_id" class="form-select lockable bg-light js-searchable" data-placeholder="-- เลือกสาขา --" disabled>
+                                <input type="text" class="form-control form-control-sm mb-1 lockable" name="major_search" placeholder="พิมพ์ค้นหาสาขา" disabled>
+                                <select name="major_id" class="form-select lockable bg-light" size="5" disabled>
                                     <option value="">-- เลือกสาขา --</option>
                                     @foreach($majors as $m)
                                     <option value="{{ $m->id }}" {{ $student->major_id == $m->id ? 'selected' : '' }}>{{ $m->name }}</option>
@@ -140,7 +142,8 @@
                             {{-- 3. ส่วนอาจารย์ที่ปรึกษา --}}
                             <div class="col-12 col-md-4">
                                 <label class="form-label text-muted small">อาจารย์ที่ปรึกษา</label>
-                                <select name="advisor_id" class="form-select lockable bg-light js-searchable" data-placeholder="-- เลือกอาจารย์ --" disabled>
+                                <input type="text" class="form-control form-control-sm mb-1 lockable" name="advisor_search" placeholder="พิมพ์ค้นหาอาจารย์" disabled>
+                                <select name="advisor_id" class="form-select lockable bg-light" size="5" disabled>
                                     <option value="">-- เลือกอาจารย์ --</option>
                                     @foreach($advisors as $adv)
                                     <option value="{{ $adv->id }}" {{ $student->advisor_id == $adv->id ? 'selected' : '' }}>
@@ -295,23 +298,50 @@
 @push('scripts')
 <script>
     document.addEventListener("DOMContentLoaded", function() {
+        const selectSearchConfigs = [
+            { inputName: "faculty_search", selectName: "faculty_id" },
+            { inputName: "major_search", selectName: "major_id" },
+            { inputName: "advisor_search", selectName: "advisor_id" },
+        ];
 
-        const initSearchSelects = () => {
-            if (typeof $ === "undefined" || !$.fn.select2) return;
+        const initSelectSearch = () => {
+            selectSearchConfigs.forEach((config) => {
+                const input = form.querySelector(`input[name="${config.inputName}"]`);
+                const select = form.querySelector(`select[name="${config.selectName}"]`);
 
-            $(".js-searchable").each(function() {
-                const $select = $(this);
+                if (!input || !select) return;
 
-                if ($select.hasClass("select2-hidden-accessible")) {
-                    return;
+                if (!input._allOptions) {
+                    input._allOptions = Array.from(select.options).map((opt) => ({
+                        value: opt.value,
+                        text: opt.text,
+                        selected: opt.selected,
+                        lower: opt.text.toLowerCase(),
+                    }));
                 }
 
-                $select.select2({
-                    theme: "bootstrap-5",
-                    width: "100%",
-                    placeholder: $select.data("placeholder") || "",
-                    allowClear: true,
-                });
+                const renderOptions = (filterValue) => {
+                    const filter = (filterValue || "").toLowerCase();
+                    const selectedValue = select.value;
+
+                    select.innerHTML = "";
+
+                    input._allOptions.forEach((opt, index) => {
+                        const matches = !filter || opt.lower.includes(filter);
+                        const isSelected = opt.value === selectedValue;
+
+                        if (index === 0 || matches || isSelected) {
+                            const option = document.createElement("option");
+                            option.value = opt.value;
+                            option.text = opt.text;
+                            option.selected = isSelected;
+                            select.appendChild(option);
+                        }
+                    });
+                };
+
+                input.addEventListener("input", () => renderOptions(input.value));
+                renderOptions(input.value);
             });
         };
 
@@ -331,7 +361,7 @@
             }
         });
 
-        initSearchSelects();
+        initSelectSearch();
 
         /* ปลดล็อกเมื่อกดแก้ไข */
         editBtn.addEventListener("click", () => {
@@ -349,7 +379,7 @@
             saveBtn.classList.remove("d-none");
             cancelBtn.classList.remove("d-none");
 
-            initSearchSelects();
+            initSelectSearch();
 
             saveBtn.scrollIntoView({
                 behavior: 'smooth',
