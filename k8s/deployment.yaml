@@ -109,7 +109,7 @@ metadata:
   name: php-ingress
   namespace: sdv
   annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.middlewares: sdv-strip@kubernetescrd
 spec:
   ingressClassName: traefik
@@ -117,7 +117,7 @@ spec:
   - host: project.cpe.rmuti.ac.th
     http:
       paths:
-      - path: /sdv/
+      - path: /sdv
         pathType: Prefix
         backend:
           service:
