@@ -21,7 +21,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 COPY nginx/default.conf /etc/nginx/http.d/default.conf
 
 WORKDIR /var/www/html
-COPY . .
+COPY src/ /var/www/html/src/
 
 RUN cd /var/www/html/src && composer install --no-dev --optimize-autoloader --no-interaction --no-scripts --ignore-platform-reqs
 

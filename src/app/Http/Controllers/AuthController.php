@@ -70,16 +70,18 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
+            // Clear any stale intended URL like /sdv/sdv/... from previous redirects.
+            $request->session()->forget('url.intended');
             $user = Auth::user();
 
             if ($user->role === 'admin') {
-                return redirect()->intended('/sdv/admin/dashboard');
+                return redirect()->route('admin.dashboard');
             } 
             elseif ($user->role === 'security') {
-                return redirect()->intended('/sdv/security/dashboard');
+                return redirect()->route('security.dashboard');
             }
             elseif ($user->role === 'student') {
-                return redirect()->intended('/sdv/student/view');
+                return redirect()->route('student.view');
             }
 
             return redirect('/sdv/login');
