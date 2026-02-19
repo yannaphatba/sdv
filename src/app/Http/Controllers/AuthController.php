@@ -55,7 +55,7 @@ class AuthController extends Controller
             Log::error("Email sending failed: " . $e->getMessage());
         }
 
-        return redirect('/sdv/login')->with('success', 'สมัครสมาชิกสำเร็จ! ตรวจสอบกล่องจดหมายของคุณด้วยครับ');
+        return redirect()->route('login')->with('success', 'สมัครสมาชิกสำเร็จ! ตรวจสอบกล่องจดหมายของคุณด้วยครับ');
     }
 
     /**
@@ -84,7 +84,7 @@ class AuthController extends Controller
                 return redirect()->route('student.view');
             }
 
-            return redirect('/sdv/login');
+            return redirect()->route('login');
         }
 
         return back()->with('error', 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง')->withInput();
