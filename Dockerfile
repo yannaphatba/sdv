@@ -15,6 +15,12 @@ RUN apk add --no-cache \
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
     docker-php-ext-install gd zip pdo pdo_mysql
 
+# Allow PHP-FPM to read container environment variables
+RUN { \
+            echo "[www]"; \
+            echo "clear_env = no"; \
+        } > /usr/local/etc/php-fpm.d/zz-clear-env.conf
+
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
