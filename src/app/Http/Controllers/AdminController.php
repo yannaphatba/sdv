@@ -105,7 +105,7 @@ class AdminController extends Controller
      */
     public function store(Request $request)
     {
-        $disk = config('filesystems.default');
+        $disk = 's3';
 
         $validated = $request->validate([
             'prefix'       => 'nullable|string|max:10',
@@ -178,7 +178,7 @@ class AdminController extends Controller
     {
         $student = Student::findOrFail($id);
         $old_student_id = $student->student_id;
-        $disk = config('filesystems.default');
+        $disk = 's3';
 
         // 1. Validation ข้อมูลส่วนตัวและรูปโปรไฟล์
         $validated = $request->validate([
@@ -223,7 +223,7 @@ class AdminController extends Controller
 
         // 3. จัดการรถคันเดิม (Existing)
         if ($request->has('vehicle_type_existing')) {
-            $disk = config('filesystems.default');
+            $disk = 's3';
             foreach ($request->vehicle_type_existing as $i => $type) {
                 // ✅ เอา if (!empty($alpha)) ออก เพื่อให้บันทึกได้แม้จะไม่ได้กรอกทะเบียน
                 $vehicleId = $request->vehicle_ids[$i] ?? null;
@@ -248,7 +248,7 @@ class AdminController extends Controller
 
         // 4. จัดการรถใหม่ (New)
         if ($request->has('vehicle_type')) {
-            $disk = config('filesystems.default');
+            $disk = 's3';
             foreach ($request->vehicle_type as $i => $type) {
                 // ✅ เปลี่ยนมาเช็คที่ประเภทรถแทน ถ้ามีการกดเพิ่มรถใหม่มา ต้องบันทึกให้
                 $newVehicle = [
@@ -293,7 +293,7 @@ class AdminController extends Controller
         if (Auth::user()->role !== 'admin') return back();
 
         // 1. ลบไฟล์รูปภาพทั้งหมดทิ้ง
-        $disk = config('filesystems.default');
+        $disk = 's3';
         Storage::disk($disk)->deleteDirectory('profiles');
         Storage::disk($disk)->deleteDirectory('vehicles');
 

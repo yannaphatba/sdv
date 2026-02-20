@@ -73,7 +73,7 @@ class StudentController extends Controller
     {
         $userId = Auth::id();
 
-        $disk = config('filesystems.default');
+        $disk = 's3';
 
         if (!$userId) {
             return redirect()->route('login')->with('error', 'กรุณาเข้าสู่ระบบ');
