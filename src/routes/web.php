@@ -23,9 +23,9 @@ Route::get('/', function () {
 });
 
 // Serve uploaded files via app to keep MinIO internal-only
-Route::get('/storage/{path}', [FileController::class, 'show'])
+Route::get('/files/{path}', [FileController::class, 'show'])
     ->where('path', '.*')
-    ->name('storage.show');
+    ->name('files.show');
 
 // --- Guest Routes ---
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');

@@ -34,7 +34,7 @@
 
                     {{-- รูปโปรไฟล์ --}}
                     @if(!empty($student->profile_image) && Storage::disk('s3')->exists($student->profile_image))
-                    <img src="{{ asset('storage/' . $student->profile_image) }}"
+                    <img src="{{ url('files/' . $student->profile_image) }}"
                         class="rounded-circle shadow border border-4 border-white mb-3 object-fit-cover"
                         style="width: 180px; height: 180px;">
                     @else
@@ -140,7 +140,7 @@
                         {{-- รูปรถ --}}
                         <div class="flex-shrink-0">
                             @if(!empty($vehicle->vehicle_image) && Storage::disk('s3')->exists($vehicle->vehicle_image))
-                            <img src="{{ asset('storage/' . $vehicle->vehicle_image) }}"
+                            <img src="{{ url('files/' . $vehicle->vehicle_image) }}"
                                 class="rounded shadow-sm border object-fit-cover"
                                 style="width: 100px; height: 100px; cursor: pointer;"
                                 onclick="window.open(this.src)">

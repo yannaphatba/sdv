@@ -81,7 +81,7 @@
           <label class="form-label">อัปโหลดรูปโปรไฟล์</label>
           <input type="file" name="profile_image" class="form-control" accept="image/*">
           @if(!empty($first?->profile_image))
-            <img src="{{ asset('storage/'.$first->profile_image) }}" alt="Profile"
+            <img src="{{ url('files/'.$first->profile_image) }}" alt="Profile"
                  width="120" class="mt-2 rounded shadow">
           @endif
         </div>
@@ -129,7 +129,7 @@
             <label class="form-label">อัปโหลดรูปรถ</label>
             <input type="file" name="vehicle_image[]" class="form-control" accept="image/*">
             @if(!empty($first?->vehicle_image))
-              <img src="{{ asset('storage/'.$first->vehicle_image) }}" alt="Vehicle"
+              <img src="{{ url('files/'.$first->vehicle_image) }}" alt="Vehicle"
                    width="120" class="mt-2 rounded shadow">
             @endif
           </div>

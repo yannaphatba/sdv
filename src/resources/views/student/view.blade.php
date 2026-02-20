@@ -160,7 +160,7 @@
                             <div class="d-flex align-items-center gap-3">
                                 <div class="flex-shrink-0">
                                     @if(!empty($student->profile_image))
-                                    <img src="{{ asset('storage/'.$student->profile_image) }}" alt="Profile" width="60" height="60" class="rounded-circle shadow-sm object-fit-cover">
+                                    <img src="{{ url('files/'.$student->profile_image) }}" alt="Profile" width="60" height="60" class="rounded-circle shadow-sm object-fit-cover">
                                     @else
                                     <div class="bg-secondary bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
                                         <i class="bi bi-person-fill text-secondary fs-3"></i>
@@ -235,7 +235,7 @@
 
                                     @if($v->vehicle_image)
                                     <div class="mt-2 text-center text-md-start">
-                                        <img src="{{ asset('storage/'.$v->vehicle_image) }}" class="rounded shadow-sm border" style="max-height: 80px; width: auto;">
+                                        <img src="{{ url('files/'.$v->vehicle_image) }}" class="rounded shadow-sm border" style="max-height: 80px; width: auto;">
                                     </div>
                                     @endif
                                 </div>
