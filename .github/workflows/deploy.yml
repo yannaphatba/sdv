@@ -62,13 +62,8 @@ jobs:
             --namespace=sdv \
             --insecure-skip-tls-verify=true
 
-          # Restart deployment
-          kubectl rollout restart deployment/php-app \
-            --namespace=sdv \
-            --insecure-skip-tls-verify=true
-
           # Wait for rollout with timeout (must succeed)
-          timeout 5m kubectl rollout status deployment/php-app \
+          timeout 10m kubectl rollout status deployment/php-app \
             --namespace=sdv \
             --insecure-skip-tls-verify=true
 
@@ -78,9 +73,8 @@ jobs:
           # Wait a moment for pod to be ready
           sleep 5
 
-          # Pick latest running pod from php-app deployment selector
-          SELECTOR=$(kubectl get deployment/php-app -n sdv --insecure-skip-tls-verify=true -o jsonpath='{range $k,$v := .spec.selector.matchLabels}{$k}={$v},{end}' | sed 's/,$//')
-          LATEST_POD=$(kubectl get pods -n sdv -l "$SELECTOR" --field-selector=status.phase=Running --sort-by=.metadata.creationTimestamp -o name --insecure-skip-tls-verify=true | tail -n 1)
+          # Pick latest running pod from php deployment label
+          LATEST_POD=$(kubectl get pods -n sdv -l app=php --field-selector=status.phase=Running --sort-by=.metadata.creationTimestamp -o name --insecure-skip-tls-verify=true | tail -n 1)
 
           if [ -z "$LATEST_POD" ]; then
             echo "No running php-app pod found, skipping cache clear"
