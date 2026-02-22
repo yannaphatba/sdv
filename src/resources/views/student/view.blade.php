@@ -82,7 +82,7 @@
                             <label class="form-label text-muted small">รหัสนักศึกษา</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0"><i class="bi bi-person-badge"></i></span>
-                                <input type="text" name="student_id" class="form-control lockable bg-light border-start-0 ps-0 numeric-only" value="{{ $student->student_id }}" inputmode="numeric" pattern="\d*" readonly>
+                                <input type="text" name="student_id" class="form-control lockable bg-light border-start-0 ps-0 numeric-dash" value="{{ $student->student_id }}" inputmode="text" pattern="\d+(\-\d+)*" readonly>
                             </div>
                         </div>
 
@@ -437,6 +437,14 @@
             if (parts.length > 1) {
                 value = parts.shift() + "/" + parts.join("").replace(/\//g, "");
             }
+            e.target.value = value;
+        });
+
+        // Allow digits and hyphens in student ID input
+        document.addEventListener("input", function(e) {
+            if (!e.target.classList.contains("numeric-dash")) return;
+            let value = e.target.value.replace(/[^\d-]/g, "");
+            value = value.replace(/-+/g, "-").replace(/^-+/, "");
             e.target.value = value;
         });
 
