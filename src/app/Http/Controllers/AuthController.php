@@ -31,11 +31,27 @@ class AuthController extends Controller
             'email' => strtolower(trim((string) $request->input('email'))),
         ]);
 
+        $email = (string) $request->input('email');
+        $parts = explode('@', $email);
+        $domain = count($parts) === 2 ? $parts[1] : '';
+
+        $isValidFormat = filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+        $isRmutiDomain = $domain === 'rmuti.ac.th';
+        $hasDnsRecord = $domain !== '' && (checkdnsrr($domain, 'MX') || checkdnsrr($domain, 'A'));
+
+        if (!$isValidFormat || !$isRmutiDomain || !$hasDnsRecord) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            abort(408, 'Request Timeout');
+        }
+
         $request->validate([
             'username' => 'required|unique:users,username', 
             'email'    => [
                 'required',
-                'email',
+                'email:rfc,dns',
                 'unique:users,email',
                 function (string $attribute, mixed $value, \Closure $fail) {
                     $parts = explode('@', strtolower(trim((string) $value)));
