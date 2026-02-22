@@ -74,11 +74,14 @@ jobs:
           # Wait a moment for pod to be ready
           sleep 5
 
-          # Clear cache on every running php app pod
-          PODS=$(kubectl get pods -n sdv -l app=php --field-selector=status.phase=Running -o name --insecure-skip-tls-verify=true)
+          # Pick latest running pod from php-app deployment
+          LATEST_POD=$(kubectl get pods -n sdv -l app=php --field-selector=status.phase=Running --sort-by=.metadata.creationTimestamp -o name --insecure-skip-tls-verify=true | tail -n 1)
 
-          for pod in $PODS; do
-            echo "Clearing cache on $pod"
-            kubectl exec "$pod" -n sdv --insecure-skip-tls-verify=true -- php /var/www/html/src/artisan optimize:clear || \
-            kubectl exec "$pod" -n sdv --insecure-skip-tls-verify=true -- sh -lc "php /var/www/html/src/artisan route:clear; php /var/www/html/src/artisan config:clear; php /var/www/html/src/artisan view:clear" || true
-          done
+          if [ -z "$LATEST_POD" ]; then
+            echo "No running php-app pod found, skipping cache clear"
+            exit 0
+          fi
+
+          echo "Clearing cache on latest pod: $LATEST_POD"
+          kubectl exec "$LATEST_POD" -n sdv --insecure-skip-tls-verify=true -- php /var/www/html/src/artisan optimize:clear || \
+          kubectl exec "$LATEST_POD" -n sdv --insecure-skip-tls-verify=true -- sh -lc "php /var/www/html/src/artisan route:clear; php /var/www/html/src/artisan config:clear; php /var/www/html/src/artisan view:clear" || true
