@@ -85,7 +85,7 @@ class StudentController extends Controller
             'first_name'    => 'required|string|max:100',
             'last_name'     => 'required|string|max:100',
             'student_id'    => 'required|regex:/^\d+$/|max:20',
-            'room_bed'      => 'nullable|regex:/^\d+$/|max:20',
+            'room_bed'      => 'nullable|regex:/^\d+(\/\d+)?$/|max:20',
             'phone'         => 'nullable|regex:/^\d+$/|max:20',
             'faculty_id'    => 'nullable|exists:faculties,id', // ตรวจสอบว่ามี ID นี้ในตารางคณะจริง
             'major_id'      => 'nullable|exists:majors,id',   // ตรวจสอบว่ามี ID นี้ในตารางสาขาจริง
@@ -94,7 +94,7 @@ class StudentController extends Controller
             'license_number.*' => 'nullable|regex:/^\d+$/|max:10',
         ], [
             'student_id.regex' => 'รหัสนักศึกษาต้องเป็นตัวเลขเท่านั้น',
-            'room_bed.regex' => 'เลขห้อง/เตียงต้องเป็นตัวเลขเท่านั้น',
+            'room_bed.regex' => 'เลขห้อง/เตียงต้องเป็นตัวเลขและสามารถใส่ / ได้หนึ่งครั้ง',
             'phone.regex' => 'เบอร์โทรต้องเป็นตัวเลขเท่านั้น',
             'license_number.*.regex' => 'ทะเบียนชุดตัวเลขต้องเป็นตัวเลขเท่านั้น',
         ]);
