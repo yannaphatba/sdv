@@ -73,7 +73,12 @@ jobs:
         run: |
           # Wait a moment for pod to be ready
           sleep 5
-          
-          kubectl exec deployment/php-app -n sdv --insecure-skip-tls-verify=true -- php /var/www/html/src/artisan route:clear || true
-          kubectl exec deployment/php-app -n sdv --insecure-skip-tls-verify=true -- php /var/www/html/src/artisan config:clear || true
-          kubectl exec deployment/php-app -n sdv --insecure-skip-tls-verify=true -- php /var/www/html/src/artisan view:clear || true
+
+          # Clear cache on every running php app pod
+          PODS=$(kubectl get pods -n sdv -l app=php --field-selector=status.phase=Running -o name --insecure-skip-tls-verify=true)
+
+          for pod in $PODS; do
+            echo "Clearing cache on $pod"
+            kubectl exec "$pod" -n sdv --insecure-skip-tls-verify=true -- php /var/www/html/src/artisan optimize:clear || \
+            kubectl exec "$pod" -n sdv --insecure-skip-tls-verify=true -- sh -lc "php /var/www/html/src/artisan route:clear; php /var/www/html/src/artisan config:clear; php /var/www/html/src/artisan view:clear" || true
+          done
