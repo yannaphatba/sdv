@@ -29,13 +29,14 @@ class AuthController extends Controller
     {
         $request->validate([
             'username' => 'required|unique:users,username', 
-            'email'    => 'required|email|unique:users,email', // ✅ เพิ่ม Validation สำหรับอีเมล
+            'email'    => ['required', 'email', 'unique:users,email', 'regex:/^[A-Za-z0-9._%+-]+@rmuti\.ac\.th$/i'],
             'password' => 'required|confirmed|min:4',
             'role'     => 'required|in:admin,student,security' 
         ], [
             'username.unique' => 'ชื่อผู้ใช้นี้ถูกใช้งานแล้ว',
             'email.email' => 'กรุณากรอกรูปแบบอีเมลให้ถูกต้อง',
-            'email.unique' => 'อีเมลนี้ถูกใช้งานแล้ว'
+            'email.unique' => 'อีเมลนี้ถูกใช้งานแล้ว',
+            'email.regex' => 'กรุณาใช้อีเมลมหาวิทยาลัยที่ลงท้ายด้วย @rmuti.ac.th เท่านั้น'
         ]);
 
         // 1. บันทึกข้อมูลลงฐานข้อมูล (เพิ่มช่อง email เข้าไปครับ)

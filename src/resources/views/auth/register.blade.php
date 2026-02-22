@@ -24,8 +24,8 @@
 
     <div class="mb-3">
       <label>อีเมล</label>
-      <input type="email" name="email" class="form-control" value="{{ old('email') }}" required>
-      <small class="text-muted">ระบบจะส่งเมลยืนยันการสมัครไปที่เมลที่ได้กรอก</small>
+      <input type="email" name="email" class="form-control" value="{{ old('email') }}" pattern="^[A-Za-z0-9._%+-]+@rmuti\.ac\.th$" title="กรุณาใช้อีเมลที่ลงท้ายด้วย @rmuti.ac.th" required>
+      <small class="text-muted">กรอกได้เฉพาะอีเมลที่ลงท้ายด้วย @rmuti.ac.th</small>
     </div>
 
     <div class="mb-3">
