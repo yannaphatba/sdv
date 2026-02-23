@@ -307,6 +307,18 @@
     .select2-container--bootstrap-5 .select2-selection[aria-disabled="true"] .select2-selection__rendered {
         color: #6c757d;
     }
+
+    .select2-container--bootstrap-5.is-readonly .select2-selection {
+        background-color: #f8f9fa;
+        border-color: #dee2e6;
+        color: #6c757d;
+        cursor: not-allowed;
+        opacity: 0.8;
+    }
+
+    .select2-container--bootstrap-5.is-readonly .select2-selection__rendered {
+        color: #6c757d;
+    }
 </style>
 
 @endsection
@@ -378,6 +390,7 @@
             select.disabled = isDisabled;
             if (typeof $ !== "undefined" && $.fn.select2 && $(select).hasClass("select2-hidden-accessible")) {
                 $(select).prop("disabled", isDisabled);
+                $(select).next(".select2-container").toggleClass("is-readonly", isDisabled);
                 $(select).trigger("change.select2");
             }
         };
@@ -393,6 +406,7 @@
                 placeholder: $select.data("placeholder") || "",
                 allowClear: true,
             });
+            $select.next(".select2-container").toggleClass("is-readonly", select.disabled);
         };
 
         const rebuildSelectOptions = (select, cache, predicate) => {
