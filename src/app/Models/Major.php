@@ -7,5 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class Major extends Model
 {
     protected $fillable = ['name'];
+
+    public function advisors()
+    {
+        return $this->belongsToMany(Advisor::class)->withTimestamps();
+    }
 }
 

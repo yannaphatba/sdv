@@ -9,7 +9,10 @@ use App\Models\Advisor;
 use App\Models\Faculty;
 use App\Models\Major;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class StudentController extends Controller
 {
@@ -50,7 +53,7 @@ class StudentController extends Controller
         );
 
         $vehicles   = Vehicle::where('student_id', $student->id)->get();
-        $advisors   = Advisor::orderBy('name')->get();
+        $advisors   = Advisor::with('majors')->orderBy('name')->get();
         $faculties  = Faculty::orderBy('name')->get();
         $majors     = Major::orderBy('name')->get();
 
@@ -80,16 +83,16 @@ class StudentController extends Controller
         }
 
         // 1. ตรวจสอบข้อมูล (เพิ่ม faculty_id, major_id, advisor_id เข้าไปแล้วครับ)
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'prefix'        => 'nullable|string|max:10',
             'first_name'    => 'required|string|max:100',
             'last_name'     => 'required|string|max:100',
             'student_id'    => 'required|regex:/^\d+(\-\d+)*$/|max:20',
             'room_bed'      => 'nullable|regex:/^\d+(\/\d+)?$/|max:20',
             'phone'         => 'nullable|regex:/^\d+$/|max:20',
-            'faculty_id'    => 'nullable|exists:faculties,id', // ตรวจสอบว่ามี ID นี้ในตารางคณะจริง
-            'major_id'      => 'nullable|exists:majors,id',   // ตรวจสอบว่ามี ID นี้ในตารางสาขาจริง
-            'advisor_id'    => 'nullable|exists:advisors,id', // ตรวจสอบว่ามี ID นี้ในตารางอาจารย์จริง
+            'faculty_id'    => ['nullable', Rule::exists('faculties', 'id')],
+            'major_id'      => ['nullable', Rule::exists('majors', 'id')],
+            'advisor_id'    => ['nullable', Rule::exists('advisors', 'id')],
             'profile_image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'license_number.*' => 'nullable|regex:/^\d+$/|max:10',
         ], [
@@ -98,6 +101,43 @@ class StudentController extends Controller
             'phone.regex' => 'เบอร์โทรต้องเป็นตัวเลขเท่านั้น',
             'license_number.*.regex' => 'ทะเบียนชุดตัวเลขต้องเป็นตัวเลขเท่านั้น',
         ]);
+
+        $validator->after(function ($validator) use ($request) {
+            $facultyId = $request->input('faculty_id');
+            $majorId = $request->input('major_id');
+            $advisorId = $request->input('advisor_id');
+
+            if ($majorId && !$facultyId) {
+                $validator->errors()->add('major_id', 'กรุณาเลือกคณะก่อนเลือกสาขา');
+            }
+
+            if ($advisorId && !$majorId) {
+                $validator->errors()->add('advisor_id', 'กรุณาเลือกสาขาก่อนเลือกอาจารย์ที่ปรึกษา');
+            }
+
+            if ($majorId && $facultyId) {
+                $majorMatchesFaculty = Major::where('id', $majorId)
+                    ->where('faculty_id', $facultyId)
+                    ->exists();
+
+                if (!$majorMatchesFaculty) {
+                    $validator->errors()->add('major_id', 'สาขาที่เลือกไม่อยู่ในคณะที่เลือก');
+                }
+            }
+
+            if ($advisorId && $majorId) {
+                $advisorMatchesMajor = DB::table('advisor_major')
+                    ->where('advisor_id', $advisorId)
+                    ->where('major_id', $majorId)
+                    ->exists();
+
+                if (!$advisorMatchesMajor) {
+                    $validator->errors()->add('advisor_id', 'อาจารย์ที่เลือกไม่อยู่ในสาขาที่เลือก');
+                }
+            }
+        });
+
+        $validator->validate();
 
         $student = Student::where('id', $id)->where('user_id', $userId)->firstOrFail();
 
@@ -200,11 +240,13 @@ class StudentController extends Controller
         $request->validate([
             'name'  => 'required|string|max:255',
             'phone' => 'required|string|max:20',
+            'major_id' => 'required|exists:majors,id',
         ]);
-        Advisor::create([
+        $advisor = Advisor::create([
             'name'  => $request->name,
             'phone' => $request->phone
         ]);
+        $advisor->majors()->sync([$request->major_id]);
         return redirect()->route('student.view')->with('success', 'เพิ่มรายชื่ออาจารย์เรียบร้อยแล้ว');
     }
     public function facultyCreate()
@@ -219,6 +261,7 @@ class StudentController extends Controller
 
     public function advisorCreate()
     {
-        return view('student.advisor_create');
+        $majors = Major::orderBy('name')->get();
+        return view('student.advisor_create', compact('majors'));
     }
 }

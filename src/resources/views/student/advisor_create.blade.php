@@ -36,6 +36,16 @@
                 </div>
 
                 <div class="mb-3">
+                    <label class="form-label">สาขา</label>
+                    <select name="major_id" class="form-select" required>
+                        <option value="">เลือกสาขา</option>
+                        @foreach($majors as $major)
+                            <option value="{{ $major->id }}" {{ old('major_id') == $major->id ? 'selected' : '' }}>{{ $major->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="mb-3">
                     <label class="form-label">เบอร์โทรศัพท์</label>
                     <input type="text" name="phone" class="form-control" required placeholder="เช่น 0812345678">
                 </div>
