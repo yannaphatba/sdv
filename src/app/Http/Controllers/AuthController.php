@@ -33,19 +33,13 @@ class AuthController extends Controller
         ]);
 
         $email = (string) $request->input('email');
-        $parts = explode('@', $email);
-        $domain = count($parts) === 2 ? $parts[1] : '';
 
-        $isValidFormat = filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
-        $isRmutiDomain = $domain === 'rmuti.ac.th';
-        $hasDnsRecord = $domain !== '' && (checkdnsrr($domain, 'MX') || checkdnsrr($domain, 'A'));
+        $existingUser = User::where('username', $request->input('username'))
+            ->orWhere('email', $email)
+            ->first();
 
-        if (!$isValidFormat || !$isRmutiDomain || !$hasDnsRecord) {
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-
-            abort(408, 'Request Timeout');
+        if ($existingUser && empty($existingUser->email_verified_at)) {
+            $existingUser->delete();
         }
 
         $request->validate([
@@ -151,7 +145,7 @@ class AuthController extends Controller
 
     public function verifyEmail(Request $request, $id, $hash)
     {
-        if (!$request->hasValidSignature()) {
+        if (!$request->hasValidSignature() && !$request->hasValidSignature(false)) {
             abort(403, 'ลิงก์ยืนยันไม่ถูกต้องหรือหมดอายุ');
         }
 
