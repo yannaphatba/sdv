@@ -309,15 +309,15 @@
     }
 
     .select2-container--bootstrap-5.is-readonly .select2-selection {
-        background-color: #f8f9fa;
-        border-color: #dee2e6;
-        color: #6c757d;
-        cursor: not-allowed;
-        opacity: 0.8;
+        background-color: #ffffff !important;
+        border-color: #dee2e6 !important;
+        color: #212529 !important;
+        cursor: not-allowed !important;
+        opacity: 1 !important;
     }
 
     .select2-container--bootstrap-5.is-readonly .select2-selection__rendered {
-        color: #6c757d;
+        color: #212529 !important;
     }
 </style>
 
