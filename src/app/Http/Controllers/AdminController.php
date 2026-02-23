@@ -30,34 +30,36 @@ class AdminController extends Controller
     {
         $q = Student::query();
 
-        if ($request->filled('type') && $request->filled('search')) {
+        if ($request->filled('search')) {
             $search = trim($request->search);
+            $value = $search;
 
-            if ($request->type === 'qrcode') {
-                $value = $search;
-                if (preg_match('/check-sticker\/(\d+)/', $search, $matches)) {
-                    $value = $matches[1];
-                }
-                if (ctype_digit($value) && strlen($value) < 4) {
-                    $value = str_pad($value, 4, '0', STR_PAD_LEFT);
-                }
-                $q->where('sticker_number', $value);
-            } elseif ($request->type === 'sticker') {
-                $q->where('sticker_number', $search);
-            } elseif ($request->type === 'license') {
-                $ids = Vehicle::where('license_number', 'like', "%{$search}%")->pluck('student_id');
-                $q->whereIn('id', $ids);
-            } elseif ($request->type === 'name') {
-                $q->where(function ($sub) use ($search) {
-                    $sub->where('first_name', 'like', "%{$search}%")
-                        ->orWhere('last_name', 'like', "%{$search}%")
-                        ->orWhereRaw("CONCAT(first_name,' ',last_name) LIKE ?", ["%{$search}%"]);
-                });
-            } elseif ($request->type === 'room') {
-                $q->where('room_bed', 'like', "%{$search}%");
-            } elseif ($request->type === 'student_id') {
-                $q->where('student_id', 'like', "%{$search}%");
+            if (preg_match('/check-sticker\/(\d+)/', $search, $matches)) {
+                $value = $matches[1];
             }
+
+            if (ctype_digit($value) && strlen($value) < 4) {
+                $value = str_pad($value, 4, '0', STR_PAD_LEFT);
+            }
+
+            $vehicleIds = Vehicle::where('license_number', 'like', "%{$search}%")
+                ->orWhere('license_alpha', 'like', "%{$search}%")
+                ->orWhereRaw("CONCAT(license_alpha, '', license_number) LIKE ?", ["%{$search}%"])
+                ->orWhereRaw("CONCAT(license_alpha, ' ', license_number) LIKE ?", ["%{$search}%"])
+                ->pluck('student_id');
+
+            $q->where(function ($sub) use ($search, $value, $vehicleIds) {
+                $sub->where('student_id', 'like', "%{$search}%")
+                    ->orWhere('room_bed', 'like', "%{$search}%")
+                    ->orWhere('sticker_number', $value)
+                    ->orWhere('qr_code_value', $value)
+                    ->orWhere(function ($name) use ($search) {
+                        $name->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%")
+                            ->orWhereRaw("CONCAT(first_name,' ',last_name) LIKE ?", ["%{$search}%"]);
+                    })
+                    ->orWhereIn('id', $vehicleIds);
+            });
         }
 
         $students = $q->orderBy('id', 'asc')->get();

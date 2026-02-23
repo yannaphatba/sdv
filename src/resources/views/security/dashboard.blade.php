@@ -63,23 +63,12 @@
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body p-3">
             <form method="GET" class="row g-2">
-                <div class="col-12 col-md-3">
-                    <select name="type" class="form-select bg-light border-0">
-                        <option value="">-- ประเภทการค้นหา --</option>
-                        <option value="sticker" {{ request('type')=='sticker'?'selected':'' }}>เลขสติ๊กเกอร์</option>
-                        <option value="qrcode" {{ request('type')=='qrcode'?'selected':'' }}>QR Code</option>
-                        <option value="license" {{ request('type')=='license'?'selected':'' }}>ทะเบียนรถ</option>
-                        <option value="name" {{ request('type')=='name'?'selected':'' }}>ชื่อ - นามสกุล</option>
-                        <option value="student_id" {{ request('type')=='student_id'?'selected':'' }}>รหัสนักศึกษา</option>
-                        <option value="room" {{ request('type')=='room'?'selected':'' }}>ห้อง/เตียง</option>
-                    </select>
-                </div>
-                <div class="col-12 col-md-6">
+                <div class="col-12 col-md-9">
                     <div class="input-group">
                         <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
                         <input type="text" name="search" class="form-control border-start-0 ps-0" placeholder="พิมพ์คำค้นหา..." value="{{ request('search') }}">
                     </div>
-                    <div id="qr-scan-wrap" class="mt-2 d-none">
+                    <div id="qr-scan-wrap" class="mt-2">
                         <button type="button" id="qr-scan-btn" class="btn btn-outline-primary btn-sm">สแกน QR ด้วยกล้อง</button>
                         <div class="mt-2">
                             <div id="qr-reader" class="w-100 rounded border d-none" style="min-height: 240px;"></div>
@@ -202,7 +191,6 @@
 <script src="https://unpkg.com/html5-qrcode@2.3.10/html5-qrcode.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const typeSelect = document.querySelector('select[name="type"]');
     const searchInput = document.querySelector('input[name="search"]');
     const qrWrap = document.getElementById('qr-scan-wrap');
     const qrBtn = document.getElementById('qr-scan-btn');
@@ -231,19 +219,6 @@ document.addEventListener('DOMContentLoaded', () => {
             qrReader.classList.add('d-none');
         }
         scanning = false;
-    };
-
-    const updateUI = () => {
-        const isQr = typeSelect && typeSelect.value === 'qrcode';
-        if (qrWrap) {
-            qrWrap.classList.toggle('d-none', !isQr);
-        }
-        if (searchInput) {
-            searchInput.placeholder = isQr ? 'สแกนหรือพิมพ์รหัส QR...' : 'พิมพ์คำค้นหา...';
-        }
-        if (!isQr) {
-            stopScan();
-        }
     };
 
     const scanLoop = async () => {
@@ -320,10 +295,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (qrBtn) {
         qrBtn.addEventListener('click', startScan);
     }
-    if (typeSelect) {
-        typeSelect.addEventListener('change', updateUI);
+    if (qrWrap) {
+        qrWrap.classList.remove('d-none');
     }
-    updateUI();
 });
 </script>
 @endsection
