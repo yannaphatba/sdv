@@ -423,16 +423,22 @@
             }
         });
 
+        const normalizeDigits = (value) => {
+            const thaiDigits = "\u0E50\u0E51\u0E52\u0E53\u0E54\u0E55\u0E56\u0E57\u0E58\u0E59";
+            return value.replace(/[\u0E50-\u0E59]/g, (ch) => String(thaiDigits.indexOf(ch)));
+        };
+
         // Allow only digits in numeric-only inputs
         document.addEventListener("input", function(e) {
             if (!e.target.classList.contains("numeric-only")) return;
-            e.target.value = e.target.value.replace(/\D+/g, "");
+            const normalized = normalizeDigits(e.target.value);
+            e.target.value = normalized.replace(/\D+/g, "");
         });
 
         // Allow digits and a single slash in room/bed input
         document.addEventListener("input", function(e) {
             if (!e.target.classList.contains("numeric-slash")) return;
-            let value = e.target.value.replace(/[^\d/]/g, "");
+            let value = normalizeDigits(e.target.value).replace(/[^\d/]/g, "");
             const parts = value.split("/");
             if (parts.length > 1) {
                 value = parts.shift() + "/" + parts.join("").replace(/\//g, "");
@@ -443,7 +449,7 @@
         // Allow digits and hyphens in student ID input
         document.addEventListener("input", function(e) {
             if (!e.target.classList.contains("numeric-dash")) return;
-            let value = e.target.value.replace(/[^\d-]/g, "");
+            let value = normalizeDigits(e.target.value).replace(/[^\d-]/g, "");
             value = value.replace(/-+/g, "-").replace(/^-+/, "");
             e.target.value = value;
         });
