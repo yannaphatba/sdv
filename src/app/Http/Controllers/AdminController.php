@@ -65,14 +65,20 @@ class AdminController extends Controller
             });
         }
 
-        // Join vehicles table เพื่อดึง sticker_number ที่น้อยที่สุดของแต่ละ student
-        $students = $q->leftJoin('vehicles', 'students.id', '=', 'vehicles.student_id')
-            ->select('students.id', 'students.student_id', 'students.prefix', 'students.first_name', 'students.last_name', 'students.room_bed', 'students.qr_code_value', DB::raw("MIN(CASE WHEN vehicles.sticker_number IS NULL OR vehicles.sticker_number = '' OR vehicles.sticker_number = '0000' THEN NULL ELSE LPAD(vehicles.sticker_number, 4, '0') END) as min_sticker_number"))
-            ->groupBy('students.id', 'students.student_id', 'students.prefix', 'students.first_name', 'students.last_name', 'students.room_bed', 'students.qr_code_value')
-            ->orderByRaw("CASE WHEN min_sticker_number IS NULL THEN 1 ELSE 0 END ASC")
-            ->orderBy('min_sticker_number', 'ASC')
-            ->orderBy('students.id', 'asc')
-            ->get();
+        // ดึง students ทั้งหมด แล้ว sort ใน PHP ตาม sticker_number ที่น้อยที่สุดของ vehicles
+        $students = $q->get()->sort(function($a, $b) {
+            $aSticker = $a->vehicles->pluck('sticker_number')->filter(fn($n) => $n && $n !== '0000')->sort()->first();
+            $bSticker = $b->vehicles->pluck('sticker_number')->filter(fn($n) => $n && $n !== '0000')->sort()->first();
+            if ($aSticker && $bSticker) {
+                return strcmp($aSticker, $bSticker);
+            } elseif ($aSticker) {
+                return -1;
+            } elseif ($bSticker) {
+                return 1;
+            } else {
+                return 0;
+            }
+        })->values();
 
         return view('admin.dashboard', [
             'students'        => $students,

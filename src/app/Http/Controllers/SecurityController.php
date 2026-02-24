@@ -7,7 +7,6 @@ use App\Models\Student;
 use App\Models\Vehicle;
 use App\Models\ParkingSlot;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\DB;
 
 class SecurityController extends Controller
 {
