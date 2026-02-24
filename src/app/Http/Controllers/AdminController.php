@@ -44,6 +44,7 @@ class AdminController extends Controller
 
             $vehicleIds = Vehicle::where('license_number', 'like', "%{$search}%")
                 ->orWhere('license_alpha', 'like', "%{$search}%")
+                ->orWhere('sticker_number', $value)
                 ->orWhereRaw("CONCAT(license_alpha, '', license_number) LIKE ?", ["%{$search}%"])
                 ->orWhereRaw("CONCAT(license_alpha, ' ', license_number) LIKE ?", ["%{$search}%"])
                 ->pluck('student_id');
@@ -62,7 +63,10 @@ class AdminController extends Controller
             });
         }
 
-        $students = $q->orderBy('id', 'asc')->get();
+        $students = $q->orderByRaw("CASE WHEN sticker_number IS NULL OR sticker_number = '' OR sticker_number = '0000' THEN 1 ELSE 0 END")
+            ->orderByRaw("LPAD(sticker_number, 4, '0') ASC")
+            ->orderBy('id', 'asc')
+            ->get();
 
         return view('admin.dashboard', [
             'students'        => $students,
@@ -120,7 +124,7 @@ class AdminController extends Controller
             'major_id'     => 'nullable|exists:majors,id',
             'advisor_id'   => 'nullable|exists:advisors,id',
             'profile_image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'sticker_number' => 'nullable|numeric|digits_between:1,4|unique:students,sticker_number',
+            'sticker_number.*' => ['nullable', 'regex:/^\d{1,4}$/'],
         ]);
 
         $user = User::create([
@@ -133,12 +137,32 @@ class AdminController extends Controller
             $validated['profile_image'] = $request->file('profile_image')->store('profiles', $disk);
         }
 
-        if (!empty($validated['sticker_number'])) {
-            $validated['qr_code_value'] = $validated['sticker_number'];
-        }
-
         $validated['user_id'] = $user->id;
         $student = Student::create($validated);
+
+        $normalizeSticker = function ($value) {
+            $digits = preg_replace('/\D+/', '', (string) $value);
+            if ($digits === '') {
+                return null;
+            }
+            return str_pad($digits, 4, '0', STR_PAD_LEFT);
+        };
+
+        $stickerNumbers = collect($request->sticker_number ?? [])
+            ->map($normalizeSticker)
+            ->filter()
+            ->values();
+
+        if ($stickerNumbers->count() !== $stickerNumbers->unique()->count()) {
+            return back()->withErrors(['sticker_number' => 'หมายเลขสติ๊กเกอร์ต้องไม่ซ้ำกันในรายการรถ'])->withInput();
+        }
+
+        if ($stickerNumbers->isNotEmpty()) {
+            $exists = Vehicle::whereIn('sticker_number', $stickerNumbers)->exists();
+            if ($exists) {
+                return back()->withErrors(['sticker_number' => 'มีหมายเลขสติ๊กเกอร์ที่ถูกใช้งานแล้ว'])->withInput();
+            }
+        }
 
         if ($request->has('vehicle_type')) {
             foreach ($request->vehicle_type as $i => $type) {
@@ -147,6 +171,7 @@ class AdminController extends Controller
                 $vehicle = new Vehicle([
                     'student_id'       => $student->id,
                     'vehicle_type'     => $type,
+                    'sticker_number'   => $normalizeSticker($request->sticker_number[$i] ?? null),
                     'license_alpha'    => $request->license_alpha[$i] ?? null,
                     'license_number'   => $request->license_number[$i] ?? null,
                     'license_province' => $request->license_province[$i] ?? null,
@@ -194,7 +219,8 @@ class AdminController extends Controller
             'major_id'       => 'nullable|exists:majors,id',
             'advisor_id'     => 'nullable|exists:advisors,id',
             'profile_image'  => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'sticker_number' => "nullable|numeric|digits_between:1,4|unique:students,sticker_number,$id,id",
+            'sticker_number_existing.*' => ['nullable', 'regex:/^\d{1,4}$/'],
+            'sticker_number.*' => ['nullable', 'regex:/^\d{1,4}$/'],
         ]);
 
         // 2. ✅ จัดการรูปภาพนักศึกษา (กันรูปหายเมื่อมีการอัปเดตข้อมูลอื่น)
@@ -207,13 +233,37 @@ class AdminController extends Controller
             User::where('username', $old_student_id)->update(['username' => $request->student_id]);
         }
 
-        // 4. ✅ อัปเดตค่า QR Code ตามเลขสติ๊กเกอร์
-        if (isset($validated['sticker_number'])) {
-            $validated['qr_code_value'] = $validated['sticker_number'];
+        // 4. บันทึกข้อมูลหลักของนักศึกษา
+        $student->update($validated);
+
+        $normalizeSticker = function ($value) {
+            $digits = preg_replace('/\D+/', '', (string) $value);
+            if ($digits === '') {
+                return null;
+            }
+            return str_pad($digits, 4, '0', STR_PAD_LEFT);
+        };
+
+        $existingStickers = collect($request->sticker_number_existing ?? [])
+            ->map($normalizeSticker)
+            ->filter();
+        $newStickers = collect($request->sticker_number ?? [])
+            ->map($normalizeSticker)
+            ->filter();
+        $allStickers = $existingStickers->merge($newStickers)->values();
+
+        if ($allStickers->count() !== $allStickers->unique()->count()) {
+            return back()->withErrors(['sticker_number' => 'หมายเลขสติ๊กเกอร์ต้องไม่ซ้ำกันในรายการรถ'])->withInput();
         }
 
-        // 5. บันทึกข้อมูลหลักของนักศึกษา
-        $student->update($validated);
+        if ($allStickers->isNotEmpty()) {
+            $exists = Vehicle::whereIn('sticker_number', $allStickers)
+                ->where('student_id', '!=', $student->id)
+                ->exists();
+            if ($exists) {
+                return back()->withErrors(['sticker_number' => 'มีหมายเลขสติ๊กเกอร์ที่ถูกใช้งานแล้ว'])->withInput();
+            }
+        }
 
         // --- 🚗 ส่วนจัดการข้อมูลรถ (ฉบับแก้ไขให้บันทึกได้ทุกกรณี) ---
 
@@ -232,6 +282,7 @@ class AdminController extends Controller
 
                 $vehicleData = [
                     'vehicle_type'     => $type ?? 'รถจักรยานยนต์',
+                    'sticker_number'   => $normalizeSticker($request->sticker_number_existing[$i] ?? null),
                     'license_alpha'    => $request->license_alpha_existing[$i] ?? '-', // ✅ ถ้าว่างให้ใส่ขีด
                     'license_number'   => $request->license_number_existing[$i] ?? '-',
                     'license_province' => $request->license_province_existing[$i] ?? '-',
@@ -255,6 +306,7 @@ class AdminController extends Controller
                 // ✅ เปลี่ยนมาเช็คที่ประเภทรถแทน ถ้ามีการกดเพิ่มรถใหม่มา ต้องบันทึกให้
                 $newVehicle = [
                     'vehicle_type'     => $type,
+                    'sticker_number'   => $normalizeSticker($request->sticker_number[$i] ?? null),
                     'license_alpha'    => $request->license_alpha[$i] ?? '-',
                     'license_number'   => $request->license_number[$i] ?? '-',
                     'license_province' => $request->license_province[$i] ?? '-',
@@ -368,15 +420,17 @@ class AdminController extends Controller
         $formattedNumber = str_pad($number, 4, '0', STR_PAD_LEFT);
 
         // ✅ 3. ค้นหาข้อมูลนักศึกษา พร้อมโหลดความสัมพันธ์ (คณะ/สาขา/อาจารย์) เพื่อไม่ให้หน้า admin.show พัง
-        $student = Student::with(['faculty', 'major', 'advisor', 'vehicles'])
-            ->where('sticker_number', $formattedNumber)
-            ->first();
+        $vehicle = Vehicle::where('sticker_number', $formattedNumber)->first();
 
-        if ($student) {
-            // ⭐ ส่งไปที่หน้าแสดงผล (admin.show)
-            return view('admin.show', compact('student'));
-        } else {
-            return "<h3>ไม่พบข้อมูลการลงทะเบียน</h3><p>สติกเกอร์หมายเลข " . htmlspecialchars($number) . " ยังไม่ได้ถูกมอบให้นักศึกษาในระบบ</p>";
+        if ($vehicle) {
+            $student = Student::with(['faculty', 'major', 'advisor', 'vehicles'])
+                ->find($vehicle->student_id);
+
+            if ($student) {
+                return view('admin.show', compact('student'));
+            }
         }
+
+        return "<h3>ไม่พบข้อมูลการลงทะเบียน</h3><p>สติกเกอร์หมายเลข " . htmlspecialchars($number) . " ยังไม่ได้ถูกมอบให้นักศึกษาในระบบ</p>";
     }
 }

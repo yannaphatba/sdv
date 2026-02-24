@@ -31,24 +31,8 @@
 
                         {{-- ================= 1. ส่วนข้อมูลส่วนตัว ================= --}}
 
-                        {{-- การ์ดเลขสติ๊กเกอร์ --}}
-                        <div class="card bg-warning bg-opacity-10 border border-warning border-opacity-50 shadow-sm mb-4 rounded-3">
-                            <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-center text-center text-md-start">
-                                <div class="mb-2 mb-md-0">
-                                    <h5 class="mb-1 fw-bold text-dark"><i class="bi bi-tag-fill text-warning me-2"></i>หมายเลขสติ๊กเกอร์</h5>
-                                    <small class="text-muted">เลขนี้จะใช้สร้าง QR Code ประจำตัว</small>
-                                </div>
-                                <div class="position-relative">
-                                    <input type="number"
-                                        name="sticker_number"
-                                        class="form-control form-control-lg fw-bold text-primary text-center border-warning shadow-sm"
-                                        style="width: 150px; font-size: 1.5rem;"
-                                        value="{{ old('sticker_number', $student->sticker_number) }}"
-                                        inputmode="numeric"
-                                        oninput="if(value.length>4)value=value.slice(0,4); this.value = this.value.replace(/[^0-9]/g, '');"
-                                        placeholder="----">
-                                </div>
-                            </div>
+                        <div class="alert alert-info shadow-sm">
+                            เลขสติ๊กเกอร์กำหนดแยกตามรถแต่ละคัน (กรอกในส่วนยานพาหนะด้านล่าง)
                         </div>
 
                         <h5 class="fw-bold text-primary mb-3 border-bottom pb-2">ข้อมูลส่วนตัว</h5>
@@ -174,6 +158,11 @@
                                             <option value="รถยนต์" {{ $v->vehicle_type=='รถยนต์'?'selected':'' }}>รถยนต์</option>
                                             <option value="รถจักรยาน" {{ $v->vehicle_type=='รถจักรยาน'?'selected':'' }}>รถจักรยาน</option>
                                         </select>
+                                    </div>
+
+                                    <div class="mb-2">
+                                        <label class="form-label text-muted small mb-1">เลขสติ๊กเกอร์ (ต่อคัน)</label>
+                                        <input type="text" name="sticker_number_existing[]" class="form-control form-control-sm" value="{{ $v->sticker_number }}" placeholder="เช่น 0001" inputmode="numeric" pattern="[0-9]*" maxlength="4">
                                     </div>
 
                                     {{-- ทะเบียน --}}
@@ -414,6 +403,10 @@
                             <input type="text" name="license_number[]" class="form-control text-center" placeholder="1234">
                             <input type="text" name="license_province[]" class="form-control" placeholder="จังหวัด">
                         </div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label text-muted small mb-0">เลขสติ๊กเกอร์ (ต่อคัน)</label>
+                        <input type="text" name="sticker_number[]" class="form-control form-control-sm" placeholder="เช่น 0001" inputmode="numeric" pattern="[0-9]*" maxlength="4">
                     </div>
                     <div class="col-4">
                         <input type="text" name="brand[]" class="form-control form-control-sm" placeholder="ยี่ห้อ">

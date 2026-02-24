@@ -41,16 +41,20 @@ class SecurityController extends Controller
                     });
             });
 
-            $q->orWhereHas('vehicles', fn($v) =>
-                $v->where('license_number', 'like', "%{$search}%")
-                  ->orWhere('license_alpha', 'like', "%{$search}%")
-                  ->orWhereRaw("CONCAT(license_alpha, '', license_number) LIKE ?", ["%{$search}%"])
-                  ->orWhereRaw("CONCAT(license_alpha, ' ', license_number) LIKE ?", ["%{$search}%"])
-            );
+                        $q->orWhereHas('vehicles', fn($v) =>
+                                $v->where('license_number', 'like', "%{$search}%")
+                                    ->orWhere('license_alpha', 'like', "%{$search}%")
+                                    ->orWhere('sticker_number', $value)
+                                    ->orWhereRaw("CONCAT(license_alpha, '', license_number) LIKE ?", ["%{$search}%"])
+                                    ->orWhereRaw("CONCAT(license_alpha, ' ', license_number) LIKE ?", ["%{$search}%"])
+                        );
         }
 
         //ดึงข้อมูลเรียงตาม id
-        $students = $q->orderBy('id', 'asc')->get();
+        $students = $q->orderByRaw("CASE WHEN sticker_number IS NULL OR sticker_number = '' OR sticker_number = '0000' THEN 1 ELSE 0 END")
+            ->orderByRaw("LPAD(sticker_number, 4, '0') ASC")
+            ->orderBy('id', 'asc')
+            ->get();
 
         //  นับสถิติรถ
         $motorcycleCount = Vehicle::where('vehicle_type', 'like', '%จักรยานยนต์%')->count();

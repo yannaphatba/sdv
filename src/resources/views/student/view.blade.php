@@ -40,14 +40,23 @@
                         {{-- ================= 1. ส่วนข้อมูลส่วนตัว ================= --}}
 
                         {{-- แสดงเลขสติ๊กเกอร์ (ปรับให้มือถือเรียงลง ไอแพดเรียงนอน) --}}
+                        @php
+                            $stickerNumbers = $vehicles->pluck('sticker_number')->filter()->unique();
+                        @endphp
                         <div class="card bg-info bg-opacity-10 border border-info border-opacity-25 shadow-sm mb-4 rounded-3">
                             <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-center text-center text-md-start">
                                 <div class="mb-2 mb-md-0">
-                                    <h5 class="mb-1 fw-bold text-dark"><i class="bi bi-tags-fill text-primary me-2"></i>หมายเลขสติ๊กเกอร์</h5>
-                                    <small class="text-muted">ใช้สำหรับยืนยันตัวตนกับยานพาหนะทุกคัน</small>
+                                    <h5 class="mb-1 fw-bold text-dark"><i class="bi bi-tags-fill text-primary me-2"></i>หมายเลขสติ๊กเกอร์ (ต่อคัน)</h5>
+                                    <small class="text-muted">ใช้สำหรับยืนยันตัวตนกับยานพาหนะของนักศึกษา</small>
                                 </div>
-                                <div class="badge bg-white text-primary fs-3 fw-bold border border-primary shadow-sm px-4 py-2 rounded-pill">
-                                    {{ $student->sticker_number ?? '-' }}
+                                <div class="d-flex flex-wrap gap-2 justify-content-center">
+                                    @if($stickerNumbers->isEmpty())
+                                        <span class="badge bg-white text-secondary fs-6 fw-bold border border-secondary shadow-sm px-3 py-2 rounded-pill">-</span>
+                                    @else
+                                        @foreach($stickerNumbers as $num)
+                                            <span class="badge bg-white text-primary fs-6 fw-bold border border-primary shadow-sm px-3 py-2 rounded-pill">{{ $num }}</span>
+                                        @endforeach
+                                    @endif
                                 </div>
                             </div>
                         </div>

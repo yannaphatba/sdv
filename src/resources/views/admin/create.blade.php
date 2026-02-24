@@ -69,15 +69,8 @@
           <input type="text" name="phone" class="form-control" value="{{ old('phone') }}">
         </div>
 
-        {{-- ช่องกรอกสติ๊กเกอร์ (เพิ่มใหม่ตรงนี้) --}}
-        <div class="card bg-warning bg-opacity-10 border-warning mb-4 mt-3">
-            <div class="card-body">
-                <label class="form-label fw-bold text-dark">🏷️ หมายเลขสติ๊กเกอร์ (ถ้ามี)</label>
-                <input type="text" name="sticker_number" class="form-control fw-bold fs-5 text-primary"
-                       placeholder="ระบุเลขสติ๊กเกอร์"
-                       value="{{ old('sticker_number') }}">
-                <div class="form-text">เลขนี้จะใช้เป็น QR Code และใช้สำหรับรถทุกคันของนักศึกษาคนนี้</div>
-            </div>
+        <div class="alert alert-info shadow-sm">
+          เลขสติ๊กเกอร์กำหนดแยกตามรถแต่ละคัน (กรอกในส่วนยานพาหนะด้านล่าง)
         </div>
 
         {{-- คณะ --}}
@@ -135,6 +128,11 @@
                     <option value="รถยนต์">รถยนต์</option>
                     <option value="รถจักรยาน">รถจักรยาน</option>
                   </select>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">เลขสติ๊กเกอร์ (ต่อคัน)</label>
+                  <input type="text" name="sticker_number[]" class="form-control" placeholder="เช่น 0001" inputmode="numeric" pattern="[0-9]*" maxlength="4">
+                  <div class="form-text">กรอกตัวเลข 1-4 หลัก ระบบจะเติม 0 นำหน้าอัตโนมัติ</div>
                 </div>
                 <div class="mb-3">
                   <label class="form-label">ทะเบียนรถ</label>
@@ -313,6 +311,11 @@ document.addEventListener("DOMContentLoaded", function() {
             <option value="รถยนต์">รถยนต์</option>
             <option value="รถจักรยาน">รถจักรยาน</option>
           </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">เลขสติ๊กเกอร์ (ต่อคัน)</label>
+          <input type="text" name="sticker_number[]" class="form-control" placeholder="เช่น 0001" inputmode="numeric" pattern="[0-9]*" maxlength="4">
+          <div class="form-text">กรอกตัวเลข 1-4 หลัก ระบบจะเติม 0 นำหน้าอัตโนมัติ</div>
         </div>
         <div class="mb-3">
           <label class="form-label">ทะเบียนรถ</label>

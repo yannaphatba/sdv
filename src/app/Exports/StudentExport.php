@@ -25,7 +25,7 @@ class StudentExport implements FromCollection, WithHeadings, WithMapping, Should
     public function headings(): array
     {
         return [
-            'หมายเลขสติ๊กเกอร์', 
+            'หมายเลขสติ๊กเกอร์ (รถ)', 
             'รหัสนักศึกษา',
             'ชื่อ - นามสกุล',
             'เบอร์โทรศัพท์',
@@ -54,7 +54,7 @@ class StudentExport implements FromCollection, WithHeadings, WithMapping, Should
         if ($student->vehicles->count() > 0) {
             foreach ($student->vehicles as $vehicle) {
                 $rows[] = [
-                    $student->sticker_number ?? '-', // ✅ 2. ดึงเลขสติ๊กเกอร์มาแสดง (ถ้าไม่มีให้ขึ้น -)
+                    $vehicle->sticker_number ?? '-',
                     $student->student_id,
                     $student->prefix . ' ' . $student->first_name . ' ' . $student->last_name,
                     $student->phone,
@@ -74,7 +74,7 @@ class StudentExport implements FromCollection, WithHeadings, WithMapping, Should
         } else {
             // กรณีไม่มีรถ ก็ให้แสดงข้อมูลนักศึกษาอย่างเดียว
             $rows[] = [
-                $student->sticker_number ?? '-', // ✅ เพิ่มตรงนี้ด้วยเช่นกัน
+                '-',
                 $student->student_id,
                 $student->prefix . ' ' . $student->first_name . ' ' . $student->last_name,
                 $student->phone,

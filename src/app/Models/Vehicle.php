@@ -12,6 +12,7 @@ class Vehicle extends Model
     protected $fillable = [
         'student_id',
         'vehicle_type',
+        'sticker_number',
         'license_alpha',
         'license_number',
         'license_province',

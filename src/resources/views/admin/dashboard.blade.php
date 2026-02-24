@@ -170,12 +170,21 @@
                     <tbody class="text-center">
                         @forelse($students as $stu)
                             <tr>
+                                @php
+                                    $stickerNumbers = $stu->vehicles->pluck('sticker_number')->filter()->unique();
+                                @endphp
                                 <td class="fw-bold text-primary">{{ $stu->student_id }}</td>
                                 <td class="text-start" style="white-space: nowrap;">
                                     {{ $stu->prefix }}{{ $stu->first_name }} {{ $stu->last_name }}
                                 </td>
                                 <td class="fw-bold text-danger bg-warning bg-opacity-10">
-                                    {{ $stu->sticker_number ?? '-' }}
+                                    @if($stickerNumbers->isEmpty())
+                                        -
+                                    @else
+                                        @foreach($stickerNumbers as $num)
+                                            <span class="badge bg-warning text-dark border border-warning mb-1">{{ $num }}</span>
+                                        @endforeach
+                                    @endif
                                 </td>
                                 {{-- ✅ แก้เป็น room_bed เพื่อให้ข้อมูลเด้งกลับมาโชว์ครับ --}}
                                 <td>{{ $stu->room_bed ?? '-' }}</td>
@@ -207,12 +216,21 @@
                 @foreach($students as $stu)
                     <div class="card mb-2 border-0 shadow-sm rounded-3">
                         <div class="card-body p-3">
+                            @php
+                                $stickerNumbers = $stu->vehicles->pluck('sticker_number')->filter()->unique();
+                            @endphp
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <div style="overflow: hidden;">
                                     <h6 class="fw-bold mb-0 text-dark" style="white-space: nowrap;">{{ $stu->prefix }}{{ $stu->first_name }} {{ $stu->last_name }}</h6>
                                     <small class="text-muted">รหัส: <span class="text-primary">{{ $stu->student_id }}</span></small>
                                 </div>
-                                <span class="badge bg-warning text-dark border border-warning shadow-sm">{{ $stu->sticker_number ?? '0000' }}</span>
+                                <span class="badge bg-warning text-dark border border-warning shadow-sm">
+                                    @if($stickerNumbers->isEmpty())
+                                        -
+                                    @else
+                                        {{ $stickerNumbers->join(', ') }}
+                                    @endif
+                                </span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mt-3">
                                 {{-- ✅ แก้ไขเป็น room_bed สำหรับหน้าจอมือถือด้วยครับ --}}

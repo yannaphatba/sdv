@@ -108,12 +108,21 @@
                     <tbody class="text-center">
                         @forelse($students as $stu)
                             <tr>
+                                @php
+                                    $stickerNumbers = $stu->vehicles->pluck('sticker_number')->filter()->unique();
+                                @endphp
                                 <td class="fw-bold text-primary">{{ $stu->student_id }}</td>
                                 <td class="text-start" style="white-space: nowrap;">
                                     <span class="fw-bold">{{ $stu->prefix }}{{ $stu->first_name }} {{ $stu->last_name }}</span>
                                 </td>
                                 <td class="fw-bold text-danger bg-warning bg-opacity-10">
-                                    {{ $stu->sticker_number ?? '-' }}
+                                    @if($stickerNumbers->isEmpty())
+                                        -
+                                    @else
+                                        @foreach($stickerNumbers as $num)
+                                            <span class="badge bg-warning text-dark border border-warning mb-1">{{ $num }}</span>
+                                        @endforeach
+                                    @endif
                                 </td>
                                 {{-- ✅ แก้กลับมาใช้ room_bed เพื่อให้เลขห้องโชว์ครับ --}}
                                 <td>{{ $stu->room_bed ?? '-' }}</td>
@@ -147,6 +156,9 @@
                 @forelse($students as $stu)
                     <div class="card mb-3 border-0 shadow-sm rounded-3">
                         <div class="card-body p-3">
+                            @php
+                                $stickerNumbers = $stu->vehicles->pluck('sticker_number')->filter()->unique();
+                            @endphp
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <div style="overflow: hidden;">
                                     <h6 class="fw-bold mb-0 text-dark" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
@@ -155,7 +167,11 @@
                                     <small class="text-muted">รหัส: <span class="text-primary">{{ $stu->student_id }}</span></small>
                                 </div>
                                 <span class="badge bg-warning text-dark border border-warning">
-                                    {{ $stu->sticker_number ?? 'ไม่มี' }}
+                                    @if($stickerNumbers->isEmpty())
+                                        -
+                                    @else
+                                        {{ $stickerNumbers->join(', ') }}
+                                    @endif
                                 </span>
                             </div>
 

@@ -44,11 +44,20 @@
                     </div>
                     @endif
 
+                    @php
+                        $stickerNumbers = $student->vehicles->pluck('sticker_number')->filter()->unique();
+                    @endphp
                     <div class="mt-2">
-                        <h5 class="text-muted small mb-1">หมายเลขสติ๊กเกอร์</h5>
-                        <span class="badge bg-warning text-dark fs-3 px-4 py-2 rounded-pill shadow-sm border border-warning">
-                            {{ $student->sticker_number ?? '-' }}
-                        </span>
+                        <h5 class="text-muted small mb-1">หมายเลขสติ๊กเกอร์ (ต่อคัน)</h5>
+                        @if($stickerNumbers->isEmpty())
+                            <span class="badge bg-secondary">-</span>
+                        @else
+                            <div class="d-flex flex-wrap justify-content-center gap-2">
+                                @foreach($stickerNumbers as $num)
+                                    <span class="badge bg-warning text-dark fs-5 px-3 py-2 rounded-pill shadow-sm border border-warning">{{ $num }}</span>
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
                 </div>
 
@@ -162,6 +171,9 @@
                                 {{ $vehicle->license_alpha }} {{ $vehicle->license_number }}
                             </h4>
                             <div class="text-muted small mb-2">{{ $vehicle->license_province }}</div>
+                            @if(!empty($vehicle->sticker_number))
+                                <div class="text-muted small mb-2">สติ๊กเกอร์: <span class="fw-bold text-dark">{{ $vehicle->sticker_number }}</span></div>
+                            @endif
 
                             <div class="d-flex flex-wrap gap-1">
                                 <span class="badge bg-light text-dark border">
