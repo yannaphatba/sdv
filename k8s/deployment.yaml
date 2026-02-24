@@ -164,6 +164,14 @@ spec:
           value: "https://project.cpe.rmuti.ac.th/sdv"
         - name: ASSET_URL
           value: "https://project.cpe.rmuti.ac.th/sdv"
+        - name: APP_ENV
+          value: "production"
+        - name: APP_DEBUG
+          value: "true"
+        - name: LOG_CHANNEL
+          value: "stderr"
+        - name: LOG_LEVEL
+          value: "debug"
         - name: MAIL_MAILER
           value: "smtp"
         - name: MAIL_HOST
