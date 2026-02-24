@@ -66,20 +66,18 @@
                 <div class="col-12 col-md-9">
                     <div class="input-group">
                         <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
-                        <input type="text" name="search" class="form-control border-start-0 ps-0" placeholder="พิมพ์คำค้นหา..." value="{{ request('search') }}">
+                        <input type="text" name="search" class="form-control border-start-0 ps-0 fw-bold" style="font-size:1.5rem; height:3.2rem;" placeholder="พิมพ์คำค้นหา..." value="{{ request('search') }}">
                     </div>
                     <div id="qr-scan-wrap" class="mt-2">
-                        <button type="button" id="qr-scan-btn" class="btn btn-outline-primary btn-sm">สแกน QR ด้วยกล้อง</button>
-                        <div class="mt-2">
-                            <div id="qr-reader" class="w-100 rounded border d-none" style="min-height: 240px;"></div>
-                            <video id="qr-preview" class="w-100 rounded border d-none" autoplay muted playsinline></video>
-                        </div>
-                        <small id="qr-scan-hint" class="text-muted d-block mt-1"></small>
+                        <!-- ปุ่มสแกน QR และกล้องถูกซ่อนสำหรับรปภ -->
+                        <style>
+                            #qr-scan-wrap { display: none !important; }
+                        </style>
                     </div>
                 </div>
                 <div class="col-12 col-md-3 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary flex-grow-1 shadow-sm">ค้นหา</button>
-                    <a href="{{ route('security.dashboard') }}" class="btn btn-light border flex-grow-1">ดูทั้งหมด</a>
+                    <button type="submit" class="btn btn-primary flex-grow-1 shadow-sm btn-lg fw-bold px-4" style="font-size:1.2rem;">ค้นหา</button>
+                    <a href="{{ route('security.dashboard') }}" class="btn btn-outline-secondary flex-grow-1 btn-lg fw-bold px-4" style="font-size:1.2rem;">ดูข้อมูลทั้งหมด</a>
                 </div>
             </form>
         </div>

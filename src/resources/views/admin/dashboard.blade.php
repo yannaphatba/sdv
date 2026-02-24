@@ -134,6 +134,9 @@
                 <div class="col-12 d-flex gap-2 mt-2">
                     <button type="submit" class="btn btn-primary w-100 shadow-sm btn-lg fw-bold px-4" style="font-size:1.2rem;">ค้นหา</button>
                 </div>
+                <div class="col-12 mt-2">
+                    <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary w-100 btn-lg fw-bold px-4" style="font-size:1.2rem;">ดูข้อมูลทั้งหมด</a>
+                </div>
             </form>
         </div>
     </div>
