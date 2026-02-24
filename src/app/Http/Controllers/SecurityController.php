@@ -7,6 +7,7 @@ use App\Models\Student;
 use App\Models\Vehicle;
 use App\Models\ParkingSlot;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\DB;
 
 class SecurityController extends Controller
 {
@@ -54,8 +55,8 @@ class SecurityController extends Controller
         //ดึงข้อมูลเรียงตาม id
         // Join vehicles table เพื่อดึง sticker_number ที่น้อยที่สุดของแต่ละ student
         $students = $q->leftJoin('vehicles', 'students.id', '=', 'vehicles.student_id')
-            ->select('students.*', \DB::raw("MIN(CASE WHEN vehicles.sticker_number IS NULL OR vehicles.sticker_number = '' OR vehicles.sticker_number = '0000' THEN NULL ELSE LPAD(vehicles.sticker_number, 4, '0') END) as min_sticker_number"))
-            ->groupBy('students.id')
+            ->select('students.id', 'students.student_id', 'students.prefix', 'students.first_name', 'students.last_name', 'students.room_bed', 'students.qr_code_value', DB::raw("MIN(CASE WHEN vehicles.sticker_number IS NULL OR vehicles.sticker_number = '' OR vehicles.sticker_number = '0000' THEN NULL ELSE LPAD(vehicles.sticker_number, 4, '0') END) as min_sticker_number"))
+            ->groupBy('students.id', 'students.student_id', 'students.prefix', 'students.first_name', 'students.last_name', 'students.room_bed', 'students.qr_code_value')
             ->orderByRaw("CASE WHEN min_sticker_number IS NULL THEN 1 ELSE 0 END ASC")
             ->orderBy('min_sticker_number', 'ASC')
             ->orderBy('students.id', 'asc')
