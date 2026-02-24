@@ -84,4 +84,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/students', [SecurityController::class, 'students'])->name('students');
         Route::get('/student/{id}/show', [SecurityController::class, 'show'])->name('student.show');
     });
+
+    // เพิ่ม route สำหรับปุ่มเพิ่มข้อมูลคณะ/สาขา/อาจารย์
+    Route::get('/add-info', function() {
+        return view('admin.add-info');
+    })->name('addInfo');
 });
