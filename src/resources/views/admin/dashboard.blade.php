@@ -19,8 +19,14 @@
     .btn-print { background:#d93845; color:#fff; }
     .btn-backup { background:#198754; color:#fff; }
     .btn-clear { background:#fff0f0; color:#b02a37; border:1px solid #f1b0b7; }
-    .btn-addinfo { background:#1f8f6a; color:#fff; }
+    .btn-addinfo { background:#7c3aed; color:#fff; }
     .btn-users { background:#17a2b8; color:#fff; }
+    @media (max-width: 768px) {
+        .admin-tools-row .btn,
+        .admin-tools-row .btn-clear {
+            min-height: 48px;
+        }
+    }
 </style>
 <div class="container-fluid px-2 px-md-4 mt-3 mb-5">
 
@@ -115,7 +121,7 @@
 
                 {{-- ส่วนที่ 3: ปุ่มเครื่องมือ (แถวเดียวในเดสก์ท็อป) --}}
                 <div class="col-12 order-3">
-                    <div class="row g-2">
+                    <div class="row g-2 admin-tools-row">
                         <div class="col-6 col-md-3">
                             <a href="{{ route('admin.export') }}" class="btn btn-backup w-100 shadow-sm fw-bold py-2 border-0 d-flex align-items-center justify-content-center text-white text-decoration-none opacity-100">
                                 Backup Excel
