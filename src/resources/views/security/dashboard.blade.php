@@ -2,6 +2,21 @@
 @section('title', 'แดชบอร์ด รปภ.')
 
 @section('content')
+<style>
+    .security-search-input {
+        background: #eef6ff;
+        border: 2px solid #3b82f6;
+        font-size: 1.5rem;
+        height: 3.2rem;
+        font-weight: 700;
+        color: #2b2b2b;
+    }
+    .security-search-input::placeholder { color: #6b5e43; }
+    .security-search-input:focus {
+        border-color: #1d4ed8;
+        box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.2);
+    }
+</style>
 <div class="container mb-5">
 
     {{-- Header --}}
@@ -62,12 +77,9 @@
     {{-- ฟอร์มค้นหา --}}
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body p-3">
-            <form method="GET" class="row g-2">
-                <div class="col-12 col-md-9">
-                    <div class="input-group">
-                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
-                        <input type="text" name="search" class="form-control border-start-0 ps-0 fw-bold" style="font-size:1.5rem; height:3.2rem;" placeholder="พิมพ์คำค้นหา..." value="{{ request('search') }}">
-                    </div>
+            <form method="GET" class="row g-2 align-items-stretch">
+                <div class="col-12 col-md-8">
+                    <input type="text" name="search" class="form-control security-search-input shadow-none" placeholder="พิมพ์คำค้นหา..." value="{{ request('search') }}">
                     <div id="qr-scan-wrap" class="mt-2">
                         <!-- ปุ่มสแกน QR และกล้องถูกซ่อนสำหรับรปภ -->
                         <style>
@@ -75,9 +87,9 @@
                         </style>
                     </div>
                 </div>
-                <div class="col-12 col-md-3 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary flex-grow-1 shadow-sm btn-lg fw-bold px-4" style="font-size:1.2rem;">ค้นหา</button>
-                    <a href="{{ route('security.dashboard') }}" class="btn btn-outline-secondary flex-grow-1 btn-lg fw-bold px-4" style="font-size:1.2rem;">ดูข้อมูลทั้งหมด</a>
+                <div class="col-12 col-md-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary w-100 shadow-sm btn-lg fw-bold px-4" style="font-size:1.2rem;">ค้นหา</button>
+                    <a href="{{ route('security.dashboard') }}" class="btn btn-outline-secondary w-100 btn-lg fw-bold px-4" style="font-size:1.2rem;">ดูข้อมูลทั้งหมด</a>
                 </div>
             </form>
         </div>

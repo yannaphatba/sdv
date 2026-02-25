@@ -4,8 +4,8 @@
 @section('content')
 <style>
     .admin-search-input {
-        background: #fff6e5;
-        border: 2px solid #f0c36a;
+        background: #eef6ff;
+        border: 2px solid #3b82f6;
         font-size: 1.6rem;
         height: 3.6rem;
         font-weight: 700;
@@ -13,14 +13,8 @@
     }
     .admin-search-input::placeholder { color: #6b5e43; }
     .admin-search-input:focus {
-        border-color: #e48a00;
-        box-shadow: 0 0 0 0.2rem rgba(228, 138, 0, 0.15);
-    }
-    @media (max-width: 768px) {
-        .admin-search-input {
-            border: 2px solid #0d6efd;
-            background: #fff;
-        }
+        border-color: #1d4ed8;
+        box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.2);
     }
     .btn-print { background:#d93845; color:#fff; }
     .btn-backup { background:#198754; color:#fff; }
@@ -119,34 +113,33 @@
                     </form>
                 </div>
 
-                {{-- ส่วนที่ 3: ปุ่ม Backup และ ล้างระบบ (แก้ปัญหา Hover) --}}
-                <div class="col-12 col-md-6 order-3">
+                {{-- ส่วนที่ 3: ปุ่มเครื่องมือ (แถวเดียวในเดสก์ท็อป) --}}
+                <div class="col-12 order-3">
                     <div class="row g-2">
-                        <div class="col-6">
+                        <div class="col-6 col-md-3">
                             <a href="{{ route('admin.export') }}" class="btn btn-backup w-100 shadow-sm fw-bold py-2 border-0 d-flex align-items-center justify-content-center text-white text-decoration-none opacity-100">
                                 Backup Excel
                             </a>
                         </div>
-                        <div class="col-6">
+                        <div class="col-6 col-md-3">
                             <form id="clear-all-form" action="{{ route('admin.clearAllStudents') }}" method="POST" data-export-url="{{ route('admin.export') }}" class="h-100">
                                 @csrf @method('DELETE')
-                                {{-- ✅ ปรับเป็นปุ่มสีแดงอ่อน (bg-danger-subtle) เพื่อให้ข้อความแดงเข้มชัดเจนตลอดเวลา แม้จะเอาเมาส์ไปชี้ --}}
                                 <button type="submit" class="btn btn-clear w-100 shadow-sm fw-bold py-2" style="transition: none;">
                                     ล้างระบบ
                                 </button>
                             </form>
                         </div>
+                        <div class="col-6 col-md-3">
+                            <a href="{{ route('admin.addInfo') }}" class="btn btn-addinfo text-white w-100 shadow-sm fw-bold py-2 border-0 d-flex align-items-center justify-content-center text-decoration-none opacity-100">
+                                เพิ่มข้อมูลคณะ/สาขา/อาจารย์
+                            </a>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <a href="{{ route('admin.users.index') }}" class="btn btn-users text-white w-100 shadow-sm fw-bold py-2 border-0 d-flex align-items-center justify-content-center text-decoration-none opacity-100">
+                                จัดการผู้ใช้งาน
+                            </a>
+                        </div>
                     </div>
-                </div>
-
-                {{-- ส่วนที่ 4: ปุ่มจัดการผู้ใช้งาน --}}
-                <div class="col-12 col-md-6 order-4">
-                    <a href="{{ route('admin.addInfo') }}" class="btn btn-addinfo text-white w-100 shadow-sm fw-bold py-2 border-0 d-flex align-items-center justify-content-center text-decoration-none opacity-100">
-                        เพิ่มข้อมูลคณะ/สาขา/อาจารย์
-                    </a>
-                    <a href="{{ route('admin.users.index') }}" class="btn btn-users text-white w-100 shadow-sm fw-bold py-2 border-0 d-flex align-items-center justify-content-center text-decoration-none opacity-100 mt-2">
-                        จัดการผู้ใช้งาน
-                    </a>
                 </div>
 
             </div>
@@ -156,14 +149,12 @@
     {{-- 4. ส่วนค้นหา --}}
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body p-3">
-            <form method="GET" class="row g-2">
-                <div class="col-12">
+            <form method="GET" class="row g-2 align-items-stretch">
+                <div class="col-12 col-md-8">
                     <input type="text" name="search" class="form-control admin-search-input shadow-none" placeholder="พิมพ์คำค้นหา..." value="{{ request('search') }}">
                 </div>
-                <div class="col-12 d-flex gap-2 mt-2">
+                <div class="col-12 col-md-4 d-flex gap-2">
                     <button type="submit" class="btn btn-primary w-100 shadow-sm btn-lg fw-bold px-4" style="font-size:1.2rem;">ค้นหา</button>
-                </div>
-                <div class="col-12 mt-2">
                     <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary w-100 btn-lg fw-bold px-4" style="font-size:1.2rem;">ดูข้อมูลทั้งหมด</a>
                 </div>
             </form>
